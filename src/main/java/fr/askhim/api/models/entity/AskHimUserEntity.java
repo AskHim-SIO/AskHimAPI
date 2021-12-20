@@ -18,10 +18,18 @@ public class AskHimUserEntity {
 	
 	@Id
 	@GeneratedValue
-	private int id;
+	private Long id;
+
 	@SuppressWarnings("unused")
 	private String nom;
 	@SuppressWarnings("unused")
 	private String prenom;
 
+	public void setNom(String nom) {
+		this.nom = nom;
+	}
+
+	public void setPrenom(String prenom) {
+		this.prenom = prenom;
+	}
 }
