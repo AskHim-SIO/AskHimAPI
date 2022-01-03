@@ -1,14 +1,15 @@
 package fr.askhim.api.payload;
 
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class UserRequest {
 
-	public String nom;
-	public String prenom;
-	
-	public UserRequest(String nom, String prenom) {
-		this.nom = nom;
-		this.prenom = prenom;
-	}
-
+	public String name;
+	public String firstname;
+	public String password;
+	public String email;
+	public Long tel;
+	public String adress;
+	public Date dateNaiss;
 }

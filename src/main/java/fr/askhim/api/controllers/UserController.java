@@ -2,7 +2,7 @@ package fr.askhim.api.controllers;
 
 import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.exception.AppException;
-import fr.askhim.api.models.entity.AskHimUserEntity;
+import fr.askhim.api.models.entity.User;
 import fr.askhim.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +24,13 @@ public class UserController {
 	
 
 	@GetMapping("/get-user")
-	public List<AskHimUserEntity> getUser() {
+	public List<User> getUser() {
 		return userRepository.findAll();
 	}
 
 	@GetMapping("/get-user/{id}")
-	public AskHimUserEntity getProduct(@PathVariable Long id) {
-		Optional<AskHimUserEntity> user = userRepository.findById(id);
+	public User getProduct(@PathVariable Long id) {
+		Optional<User> user = userRepository.findById(id);
 		if (!user.isPresent()) {
 			throw new AppException("L'utilisateur n'a pas été trouvé.");
 		}
@@ -39,10 +39,17 @@ public class UserController {
 
 	@PostMapping("/create-user")
 	public ResponseEntity createUser (@RequestBody UserRequest user) {
-		AskHimUserEntity userEnt = new AskHimUserEntity();
-		userEnt.setNom(user.nom);
-		userEnt.setPrenom(user.prenom);
-		AskHimUserEntity result = userRepository.save(userEnt);
+		User userEnt = new User();
+
+		userEnt.setName(user.name);
+		userEnt.setFirstname(user.firstname);
+		userEnt.setAdress(user.adress);
+		userEnt.setDateNaiss(user.dateNaiss);
+		userEnt.setEmail(user.email);
+		userEnt.setPassword(user.password);
+		userEnt.setTel(user.tel);
+
+		User result = userRepository.save(userEnt);
 
 		URI location = ServletUriComponentsBuilder
 				.fromCurrentRequest()
@@ -58,15 +65,15 @@ public class UserController {
 
 	@PutMapping("/update-user/{id}")
 	public ResponseEntity updateUser(@RequestBody UserRequest request, @PathVariable Long id) {
-		Optional<AskHimUserEntity> user = userRepository.findById(id);
+		Optional<User> user = userRepository.findById(id);
 		if (!user.isPresent()) {
 			throw new AppException("L'utilisateur n'a pas été trouvé.");
 		}
 
-		AskHimUserEntity userEnt = user.get();
+		User userEnt = user.get();
 
-		userEnt.setNom(request.nom);
-		userEnt.setPrenom(request.prenom);
+		userEnt.setName(request.name);
+		userEnt.setFirstname(request.firstname);
 
 		userRepository.save(userEnt);
 		return ResponseEntity.ok()
@@ -76,7 +83,7 @@ public class UserController {
 
 	@DeleteMapping("/delete-user/{id}")
 	public ResponseEntity deleteUser(@PathVariable Long id) {
-		Optional<AskHimUserEntity> userResearch = userRepository.findById(id);
+		Optional<User> userResearch = userRepository.findById(id);
 		if (!userResearch.isPresent()) {
 			throw new AppException("L'utilisateur n'a pas été trouvé.");
 		}
