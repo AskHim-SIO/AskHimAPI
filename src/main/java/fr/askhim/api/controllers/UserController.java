@@ -1,5 +1,6 @@
 package fr.askhim.api.controllers;
 
+import fr.askhim.api.model.UserProfile;
 import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.exception.AppException;
 import fr.askhim.api.models.entity.User;
@@ -23,8 +24,8 @@ public class UserController {
 	private UserRepository userRepository;
 	
 
-	@GetMapping("/get-user")
-	public List<User> getUser() {
+	@GetMapping("/get-users")
+	public List<User> getUsers() {
 		return userRepository.findAll();
 	}
 
@@ -91,5 +92,28 @@ public class UserController {
 		return ResponseEntity.ok()
 				.body(new ApiResponse(true,
 						"L'utilisateur a été supprimé."));
+	}
+
+	@GetMapping("/get-user-profile/{id}")
+	public UserProfile getUserProfile(@PathVariable Long id){
+		Optional<User> user = userRepository.findById(id);
+		if (!user.isPresent()) {
+			throw new AppException("L'utilisateur n'a pas été trouvé.");
+		}
+
+		User userEnt = user.get();
+
+		UserProfile userProfile = new UserProfile();
+		userProfile.setName(userEnt.getName());
+		userProfile.setFirstname(userEnt.getFirstname());
+		userProfile.setEmail(userEnt.getEmail());
+		userProfile.setTel(userEnt.getTel());
+		userProfile.setAdress(userEnt.getAdress());
+		userProfile.setDateNaiss(userEnt.getDateNaiss());
+		userProfile.setCredit(userEnt.getCredit());
+		userProfile.setProfilPicture(userEnt.getProfilPicture());
+
+		return userProfile;
+
 	}
 }
