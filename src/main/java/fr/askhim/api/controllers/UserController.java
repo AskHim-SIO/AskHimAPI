@@ -112,6 +112,9 @@ public class UserController {
 		userProfile.setDateNaiss(userEnt.getDateNaiss());
 		userProfile.setCredit(userEnt.getCredit());
 		userProfile.setProfilPicture(userEnt.getProfilPicture());
+		userProfile.setServiceProfileSet(userEnt.getServices());
+
+
 
 		return userProfile;
 

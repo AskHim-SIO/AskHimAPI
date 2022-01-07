@@ -1,9 +1,11 @@
 package fr.askhim.api.model;
 
+import fr.askhim.api.models.entity.Service;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -17,6 +19,7 @@ public class UserProfile {
     private Date dateNaiss;
     private Number credit;
     private String profilPicture;
+    private Set<Service> serviceProfileSet;
 
 
 }
