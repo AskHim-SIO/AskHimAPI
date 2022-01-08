@@ -1,15 +1,18 @@
 package fr.askhim.api.controllers;
 
-import fr.askhim.api.model.UserProfile;
-import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.exception.AppException;
+import fr.askhim.api.model.AuthModel.LoginModel;
+import fr.askhim.api.model.AuthModel.RegisterModel;
+import fr.askhim.api.model.UserModel;
 import fr.askhim.api.models.entity.User;
+import fr.askhim.api.payload.ApiResponse;
+import fr.askhim.api.payload.UserRequest;
 import fr.askhim.api.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import fr.askhim.api.payload.UserRequest;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -20,103 +23,108 @@ import java.util.Optional;
 @RequestMapping("/user")
 public class UserController {
 
-	@Autowired
-	private UserRepository userRepository;
-	
+    @Autowired
+    private UserRepository userRepository;
 
-	@GetMapping("/get-users")
-	public List<User> getUsers() {
-		return userRepository.findAll();
-	}
+    private ModelMapper mapper = new ModelMapper();
 
-	@GetMapping("/get-user/{id}")
-	public User getProduct(@PathVariable Long id) {
-		Optional<User> user = userRepository.findById(id);
-		if (!user.isPresent()) {
-			throw new AppException("L'utilisateur n'a pas été trouvé.");
-		}
-		return user.get();
-	}
+    @GetMapping("/get-users")
+    public List<User> getUsers() {
+        return userRepository.findAll();
+    }
 
-	@PostMapping("/create-user")
-	public ResponseEntity createUser (@RequestBody UserRequest user) {
-		User userEnt = new User();
+    @GetMapping("/get-user/{id}")
+    public UserModel getUserProfile(@PathVariable Long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (!user.isPresent()) {
+            throw new AppException("L'utilisateur n'a pas été trouvé.");
+        }
 
-		userEnt.setName(user.name);
-		userEnt.setFirstname(user.firstname);
-		userEnt.setAdress(user.adress);
-		userEnt.setDateNaiss(user.dateNaiss);
-		userEnt.setEmail(user.email);
-		userEnt.setPassword(user.password);
-		userEnt.setTel(user.tel);
+        User userEnt = user.get();
 
-		User result = userRepository.save(userEnt);
+        return mapToDTO(userEnt);
+    }
 
-		URI location = ServletUriComponentsBuilder
-				.fromCurrentRequest()
-				.path("/{id}")
-				.buildAndExpand(result.getId())
-				.toUri();
+    @PostMapping("/create-user")
+    public ResponseEntity createUser(@RequestBody RegisterModel user) {
+        User userEnt = new User();
 
-		return ResponseEntity.created(location).body(
-				new ApiResponse(true,
-						"L'utilisateur a été crée."));
-
-	}
-
-	@PutMapping("/update-user/{id}")
-	public ResponseEntity updateUser(@RequestBody UserRequest request, @PathVariable Long id) {
-		Optional<User> user = userRepository.findById(id);
-		if (!user.isPresent()) {
-			throw new AppException("L'utilisateur n'a pas été trouvé.");
-		}
-
-		User userEnt = user.get();
-
-		userEnt.setName(request.name);
-		userEnt.setFirstname(request.firstname);
-
-		userRepository.save(userEnt);
-		return ResponseEntity.ok()
-				.body(new ApiResponse(true,
-						"L'utilisateur a été mis à jour."));
-	}
-
-	@DeleteMapping("/delete-user/{id}")
-	public ResponseEntity deleteUser(@PathVariable Long id) {
-		Optional<User> userResearch = userRepository.findById(id);
-		if (!userResearch.isPresent()) {
-			throw new AppException("L'utilisateur n'a pas été trouvé.");
-		}
-		userRepository.delete(userResearch.get());
-		return ResponseEntity.ok()
-				.body(new ApiResponse(true,
-						"L'utilisateur a été supprimé."));
-	}
-
-	@GetMapping("/get-user-profile/{id}")
-	public UserProfile getUserProfile(@PathVariable Long id){
-		Optional<User> user = userRepository.findById(id);
-		if (!user.isPresent()) {
-			throw new AppException("L'utilisateur n'a pas été trouvé.");
-		}
-
-		User userEnt = user.get();
-
-		UserProfile userProfile = new UserProfile();
-		userProfile.setName(userEnt.getName());
-		userProfile.setFirstname(userEnt.getFirstname());
-		userProfile.setEmail(userEnt.getEmail());
-		userProfile.setTel(userEnt.getTel());
-		userProfile.setAdress(userEnt.getAdress());
-		userProfile.setDateNaiss(userEnt.getDateNaiss());
-		userProfile.setCredit(userEnt.getCredit());
-		userProfile.setProfilPicture(userEnt.getProfilPicture());
-		userProfile.setServiceProfileSet(userEnt.getServices());
+//		user.setPassword(BCrypt.withDefaults().hashToString(12, user.getPassword().toCharArray()));
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
 
+        User result = userRepository.save(DTOToMapForRegister(user));
 
-		return userProfile;
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(result.getId())
+                .toUri();
 
-	}
+        return ResponseEntity.created(location).body(
+                new ApiResponse(true,
+                        "L'utilisateur a été crée."));
+    }
+
+    @PutMapping("/update-user/{id}")
+    public ResponseEntity updateUser(@RequestBody UserRequest request, @PathVariable Long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (!user.isPresent()) {
+            throw new AppException("L'utilisateur n'a pas été trouvé.");
+        }
+
+        User userEnt = user.get();
+
+        userEnt.setName(request.name);
+        userEnt.setFirstname(request.firstname);
+
+        userRepository.save(userEnt);
+        return ResponseEntity.ok()
+                .body(new ApiResponse(true,
+                        "L'utilisateur a été mis à jour."));
+    }
+
+    @DeleteMapping("/delete-user/{id}")
+    public ResponseEntity deleteUser(@PathVariable Long id) {
+        Optional<User> userResearch = userRepository.findById(id);
+        if (!userResearch.isPresent()) {
+            throw new AppException("L'utilisateur n'a pas été trouvé.");
+        }
+        userRepository.delete(userResearch.get());
+        return ResponseEntity.ok()
+                .body(new ApiResponse(true,
+                        "L'utilisateur a été supprimé."));
+    }
+
+    @PostMapping("login")
+    public User loginUser(@RequestBody LoginModel request) {
+        List<User> users = userRepository.findByEmail(request.getEmail());
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+        for (User user : users) {
+            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                return user;
+            }
+        }
+        User newuser = new User();
+        return newuser;
+    }
+
+    // MAPPING
+    private UserModel mapToDTO(User user) {
+        UserModel userModel = mapper.map(user, UserModel.class);
+        return userModel;
+    }
+
+    private User DTOToMap(UserModel userModel) {
+        User user = mapper.map(userModel, User.class);
+        return user;
+    }
+
+    private User DTOToMapForRegister(RegisterModel userModel) {
+        User user = mapper.map(userModel, User.class);
+        return user;
+    }
 }

@@ -34,16 +34,16 @@ public class User{
 	@Column(nullable = false)
 	private String password;
 
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String email;
 
-	@Column(nullable = false)
+	@Column()
 	private Long tel;
 
-	@Column(nullable = false)
+	@Column()
 	private String adress;
 
-	@Column(nullable = false)
+	@Column()
 	@Temporal(TemporalType.DATE)
 	private Date  dateNaiss;
 
