@@ -4,9 +4,11 @@ import fr.askhim.api.exception.AppException;
 import fr.askhim.api.model.AuthModel.LoginModel;
 import fr.askhim.api.model.AuthModel.RegisterModel;
 import fr.askhim.api.model.UserModel;
+import fr.askhim.api.models.entity.Token;
 import fr.askhim.api.models.entity.User;
 import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.payload.UserRequest;
+import fr.askhim.api.repository.TokenRepository;
 import fr.askhim.api.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +18,23 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
+
     @Autowired
     private UserRepository userRepository;
+    private TokenRepository tokenRepository;
 
     private ModelMapper mapper = new ModelMapper();
 
@@ -103,11 +113,39 @@ public class UserController {
 
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+        User userConnect = null;
         for (User user : users) {
             if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                return user;
+
+                 userConnect = user;
             }
         }
+        if(userConnect != null){
+            UUID uuid = UUID.randomUUID();
+
+            LocalDate dateCreation = LocalDate.now();
+            LocalDate dateExpiration = LocalDate.now().plusMonths(1);
+
+            Token token = new Token();
+            User user1 = new User();
+            user1 = userRepository.getById(userConnect.getId());
+
+
+
+            token.setId(uuid.toString());
+            token.setDateC(dateCreation);
+            token.setDateP(dateExpiration);
+
+            tokenRepository.save(token);
+
+            user1.getTokens().add(token);
+
+            userRepository.save(user1);
+
+            return userConnect;
+        }
+
+        //retour d'un user null
         User newuser = new User();
         return newuser;
     }
