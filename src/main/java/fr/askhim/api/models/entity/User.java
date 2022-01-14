@@ -47,8 +47,8 @@ public class User{
 	@Temporal(TemporalType.DATE)
 	private Date  dateNaiss;
 
-	@Column(columnDefinition = "integer default 0")
-	private Number credit;
+	@Column(columnDefinition = "long default 0")
+	private Long credit;
 
 	@Column
 	private String profilPicture;
