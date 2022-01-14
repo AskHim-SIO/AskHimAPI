@@ -49,7 +49,6 @@ public class UserController {
     public ResponseEntity createUser(@RequestBody RegisterModel user) {
         User userEnt = new User();
 
-//		user.setPassword(BCrypt.withDefaults().hashToString(12, user.getPassword().toCharArray()));
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
