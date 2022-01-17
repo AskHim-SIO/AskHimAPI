@@ -45,7 +45,7 @@ public class User{
 
 	@Column()
 	@Temporal(TemporalType.DATE)
-	private Date  dateNaiss;
+	private Date dateNaiss;
 
 	@Column(columnDefinition = "long default 0")
 	private Long credit;
