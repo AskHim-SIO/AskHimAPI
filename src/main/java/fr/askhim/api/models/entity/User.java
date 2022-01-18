@@ -6,6 +6,7 @@ import fr.askhim.api.models.entity.key.ResponseUserServiceKey;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -75,4 +76,7 @@ public class User{
 	@OneToMany(mappedBy="user")
 	private Set<Service> services;
 
+	//un user peut avoir plusieurs tokens
+	@OneToMany(mappedBy="user")
+	private Set<Token> tokens;
 }

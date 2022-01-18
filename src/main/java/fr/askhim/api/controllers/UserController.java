@@ -3,10 +3,13 @@ package fr.askhim.api.controllers;
 import fr.askhim.api.exception.AppException;
 import fr.askhim.api.model.AuthModel.LoginModel;
 import fr.askhim.api.model.AuthModel.RegisterModel;
+import fr.askhim.api.model.TokenModel;
 import fr.askhim.api.model.UserModel;
+import fr.askhim.api.models.entity.Token;
 import fr.askhim.api.models.entity.User;
 import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.payload.UserRequest;
+import fr.askhim.api.repository.TokenRepository;
 import fr.askhim.api.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +19,24 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
+
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TokenRepository tokenRepository;
 
     private ModelMapper mapper = new ModelMapper();
 
@@ -97,29 +109,42 @@ public class UserController {
     }
 
     @PostMapping("login")
-    public User loginUser(@RequestBody LoginModel request) {
+    public String loginUser(@RequestBody LoginModel request) {
         List<User> users = userRepository.findByEmail(request.getEmail());
 
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+        User userConnect = null;
         for (User user : users) {
             if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                return user;
+
+                 userConnect = user;
             }
         }
-        User newuser = new User();
-        return newuser;
+        if(userConnect != null){
+            UUID uuid = UUID.randomUUID();
+
+            LocalDate dateCreation = LocalDate.now();
+            LocalDate dateExpiration = LocalDate.now().plusMonths(1);
+
+            Token token = new Token();
+
+            token.setId(uuid.toString());
+            token.setDateC(dateCreation);
+            token.setDateP(dateExpiration);
+            token.setUser(userConnect);
+
+            tokenRepository.save(token);
+
+            return token.getId();
+        }
+        return null;
     }
 
     // MAPPING
     private UserModel mapToDTO(User user) {
         UserModel userModel = mapper.map(user, UserModel.class);
         return userModel;
-    }
-
-    private User DTOToMap(UserModel userModel) {
-        User user = mapper.map(userModel, User.class);
-        return user;
     }
 
     private User DTOToMapForRegister(RegisterModel userModel) {
