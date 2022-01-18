@@ -9,7 +9,6 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
-public interface TokenRepository extends JpaRepository<Token, Long> {
-    
+public interface TokenRepository extends JpaRepository<Token, String> {
 
 }

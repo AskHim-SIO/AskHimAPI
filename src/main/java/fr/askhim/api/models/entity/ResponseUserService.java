@@ -26,4 +26,5 @@ public class ResponseUserService {
 
 	Date date;
 	String libelle;
+	Boolean vu;
 }
