@@ -123,15 +123,14 @@ public class SeedController {
     @GetMapping("/seedTransports")
     public String seedTransports(int nbSeed){
         if(checkNbSeeds(nbSeed)){
-            /*for(int i = 0 ; i < nbSeed ; i++){
+            for(int i = 0 ; i < nbSeed ; i++){
                 Transport transportFaker = new Transport();
                 transportFaker.setName(faker.beer().name()); // TODO
                 transportFaker.setDateStart(faker.date().birthday(-100, 0));
                 transportFaker.setDateEnd(faker.date().birthday(0, 100));
                 transportFaker.setPrice((long) faker.number().numberBetween(1, 2000));
             }
-            return "[OK] Transports ajoutés";*/
-            return "[Error] En attente";
+            return "[OK] Transports ajoutés";
         }else{
             return "[Error] Le nombre doit être supérieur à 0";
         }

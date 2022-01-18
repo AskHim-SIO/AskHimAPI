@@ -1,8 +1,12 @@
 package fr.askhim.api.services;
 
+import fr.askhim.api.models.entity.User;
 import fr.askhim.api.payload.UserRequest;
 import fr.askhim.api.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Random;
 
 @Service
 public class UserService {
@@ -13,5 +17,10 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    public User getRandomUser(){
+        List<User> users = userRepository.findAll();
+        Random random = new Random();
+        return null;
+    }
 
 }
