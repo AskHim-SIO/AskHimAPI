@@ -3,6 +3,7 @@ package fr.askhim.api.controllers;
 import fr.askhim.api.exception.AppException;
 import fr.askhim.api.model.AuthModel.LoginModel;
 import fr.askhim.api.model.AuthModel.RegisterModel;
+import fr.askhim.api.model.TokenModel;
 import fr.askhim.api.model.UserModel;
 import fr.askhim.api.models.entity.Token;
 import fr.askhim.api.models.entity.User;
@@ -34,6 +35,7 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
     private TokenRepository tokenRepository;
 
     private ModelMapper mapper = new ModelMapper();
@@ -108,7 +110,7 @@ public class UserController {
     }
 
     @PostMapping("login")
-    public User loginUser(@RequestBody LoginModel request) {
+    public String loginUser(@RequestBody LoginModel request) {
         List<User> users = userRepository.findByEmail(request.getEmail());
 
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -127,38 +129,23 @@ public class UserController {
             LocalDate dateExpiration = LocalDate.now().plusMonths(1);
 
             Token token = new Token();
-            User user1 = new User();
-            user1 = userRepository.getById(userConnect.getId());
-
-
 
             token.setId(uuid.toString());
             token.setDateC(dateCreation);
             token.setDateP(dateExpiration);
+            token.setUser(userConnect);
 
             tokenRepository.save(token);
 
-            user1.getTokens().add(token);
-
-            userRepository.save(user1);
-
-            return userConnect;
+            return token.getId();
         }
-
-        //retour d'un user null
-        User newuser = new User();
-        return newuser;
+        return null;
     }
 
     // MAPPING
     private UserModel mapToDTO(User user) {
         UserModel userModel = mapper.map(user, UserModel.class);
         return userModel;
-    }
-
-    private User DTOToMap(UserModel userModel) {
-        User user = mapper.map(userModel, User.class);
-        return user;
     }
 
     private User DTOToMapForRegister(RegisterModel userModel) {
