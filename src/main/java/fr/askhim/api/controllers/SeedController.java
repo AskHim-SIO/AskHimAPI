@@ -5,13 +5,12 @@ import fr.askhim.api.models.entity.Lieu;
 import fr.askhim.api.models.entity.Type;
 import fr.askhim.api.models.entity.User;
 import fr.askhim.api.models.entity.typeService.Competence;
+import fr.askhim.api.models.entity.typeService.Motif;
 import fr.askhim.api.models.entity.typeService.Transport;
-import fr.askhim.api.repository.CompetenceRepository;
-import fr.askhim.api.repository.LieuRepository;
-import fr.askhim.api.repository.TypeRepository;
-import fr.askhim.api.repository.UserRepository;
+import fr.askhim.api.repository.*;
 import fr.askhim.api.services.CompetenceService;
 import fr.askhim.api.services.LieuService;
+import fr.askhim.api.services.MotifService;
 import fr.askhim.api.services.TypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,6 +33,9 @@ public class SeedController {
     private LieuRepository lieuRepository;
 
     @Autowired
+    private MotifRepository motifRepository;
+
+    @Autowired
     private TypeRepository typeRepository;
 
     @Autowired
@@ -49,13 +51,16 @@ public class SeedController {
 
     private final LieuService lieuService;
 
+    private final MotifService motifService;
+
     private final TypeService typeService;
 
     // ---------------
 
-    public SeedController(CompetenceService competenceService, LieuService lieuService, TypeService typeService){
+    public SeedController(CompetenceService competenceService, LieuService lieuService, MotifService motifService, TypeService typeService){
         this.competenceService = competenceService;
         this.lieuService = lieuService;
+        this.motifService = motifService;
         this.typeService = typeService;
     }
 
@@ -94,6 +99,22 @@ public class SeedController {
                 lieuRepository.save(lieuFaker);
             }
             return "[OK] Lieux ajoutés";
+        }else{
+            return "[Error] Le nombre doit être supérieur à 0";
+        }
+    }
+
+    @GetMapping("/seedMotifs")
+    public String seedMotifs(int nbSeed){
+        if(checkNbSeeds(nbSeed)){
+            for(int i = 0 ; i < nbSeed ; i++){
+                Motif motifFaker = new Motif();
+                do{
+                    motifFaker.setLibelle(faker.beer().name());
+                }while(motifService.motifExist(motifFaker.getLibelle()));
+                motifRepository.save(motifFaker);
+            }
+            return "[OK] Motifs ajoutés";
         }else{
             return "[Error] Le nombre doit être supérieur à 0";
         }
