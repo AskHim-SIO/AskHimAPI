@@ -19,11 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,9 +28,9 @@ import java.util.UUID;
 @RequestMapping("/user")
 public class UserController {
 
-
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private TokenRepository tokenRepository;
 
@@ -45,16 +41,17 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    @GetMapping("/get-user/{id}")
-    public UserModel getUserProfile(@PathVariable Long id) {
-        Optional<User> user = userRepository.findById(id);
-        if (!user.isPresent()) {
+    @GetMapping("/get-user/{token}")
+    public UserModel getUserProfile(@PathVariable String token) {
+        Optional<Token> tokenRes = tokenRepository.findById(token);
+        if (!tokenRes.isPresent()) {
             throw new AppException("L'utilisateur n'a pas été trouvé.");
         }
 
-        User userEnt = user.get();
+        Token userTok = tokenRes.get();
+        User user = userTok.getUser();
 
-        return mapToDTO(userEnt);
+        return mapToDTO(user);
     }
 
     @PostMapping("/create-user")
@@ -108,43 +105,19 @@ public class UserController {
                         "L'utilisateur a été supprimé."));
     }
 
-    @PostMapping("login")
-    public String loginUser(@RequestBody LoginModel request) {
-        List<User> users = userRepository.findByEmail(request.getEmail());
 
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-        User userConnect = null;
-        for (User user : users) {
-            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
 
-                 userConnect = user;
-            }
-        }
-        if(userConnect != null){
-            UUID uuid = UUID.randomUUID();
-
-            LocalDate dateCreation = LocalDate.now();
-            LocalDate dateExpiration = LocalDate.now().plusMonths(1);
-
-            Token token = new Token();
-
-            token.setId(uuid.toString());
-            token.setDateC(dateCreation);
-            token.setDateP(dateExpiration);
-            token.setUser(userConnect);
-
-            tokenRepository.save(token);
-
-            return token.getId();
-        }
-        return null;
-    }
 
     // MAPPING
     private UserModel mapToDTO(User user) {
         UserModel userModel = mapper.map(user, UserModel.class);
         return userModel;
+    }
+
+    private TokenModel tokenMapToDTO(Token token) {
+        TokenModel tokenModel = mapper.map(token, TokenModel.class);
+        return tokenModel;
     }
 
     private User DTOToMapForRegister(RegisterModel userModel) {

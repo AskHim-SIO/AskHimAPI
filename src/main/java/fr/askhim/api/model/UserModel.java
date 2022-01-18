@@ -9,7 +9,7 @@ public class UserModel {
 
     private String name;
     private String firstname;
-    private String email;
+    private String profilPicture;
     
 
 }
