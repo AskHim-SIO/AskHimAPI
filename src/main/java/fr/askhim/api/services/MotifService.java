@@ -4,6 +4,9 @@ import fr.askhim.api.models.entity.typeService.Motif;
 import fr.askhim.api.repository.MotifRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Random;
+
 @Service
 public class MotifService {
 
@@ -19,6 +22,15 @@ public class MotifService {
 
     public boolean motifExist(String libelle){
         return getMotifByLibelle(libelle) != null;
+    }
+
+    public Motif getRandomMotif(){
+        List<Motif> motifs = motifRepository.findAll();
+        if(motifs.size() == 0){
+            return null;
+        }
+        Random random = new Random();
+        return motifs.get(random.nextInt(motifs.size()));
     }
 
 }

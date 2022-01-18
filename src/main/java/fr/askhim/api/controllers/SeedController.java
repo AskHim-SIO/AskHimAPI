@@ -8,16 +8,14 @@ import fr.askhim.api.models.entity.typeService.Competence;
 import fr.askhim.api.models.entity.typeService.Motif;
 import fr.askhim.api.models.entity.typeService.Transport;
 import fr.askhim.api.repository.*;
-import fr.askhim.api.services.CompetenceService;
-import fr.askhim.api.services.LieuService;
-import fr.askhim.api.services.MotifService;
-import fr.askhim.api.services.TypeService;
+import fr.askhim.api.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.Random;
 
 @RestController
@@ -34,6 +32,9 @@ public class SeedController {
 
     @Autowired
     private MotifRepository motifRepository;
+
+    @Autowired
+    private TransportRepository transportRepository;
 
     @Autowired
     private TypeRepository typeRepository;
@@ -55,13 +56,16 @@ public class SeedController {
 
     private final TypeService typeService;
 
+    private final UserService userService;
+
     // ---------------
 
-    public SeedController(CompetenceService competenceService, LieuService lieuService, MotifService motifService, TypeService typeService){
+    public SeedController(CompetenceService competenceService, LieuService lieuService, MotifService motifService, TypeService typeService, UserService userService){
         this.competenceService = competenceService;
         this.lieuService = lieuService;
         this.motifService = motifService;
         this.typeService = typeService;
+        this.userService = userService;
     }
 
     private boolean checkNbSeeds(int nbSeed){
@@ -72,7 +76,7 @@ public class SeedController {
         }
     }
 
-    @GetMapping("/seedCompetences")
+    @GetMapping("/seedcompetences")
     public String seedCompetences(int nbSeed){
         if(checkNbSeeds(nbSeed)){
             for(int i = 0 ; i < nbSeed ; i++){
@@ -88,7 +92,7 @@ public class SeedController {
         }
     }
 
-    @GetMapping("/seedLieux")
+    @GetMapping("/seedlieux")
     public String seedLieux(int nbSeed){
         if(checkNbSeeds(nbSeed)){
             for(int i = 0 ; i < nbSeed ; i++){
@@ -104,7 +108,7 @@ public class SeedController {
         }
     }
 
-    @GetMapping("/seedMotifs")
+    @GetMapping("/seedmotifs")
     public String seedMotifs(int nbSeed){
         if(checkNbSeeds(nbSeed)){
             for(int i = 0 ; i < nbSeed ; i++){
@@ -120,7 +124,7 @@ public class SeedController {
         }
     }
 
-    @GetMapping("/seedTransports")
+    @GetMapping("/seedtransports")
     public String seedTransports(int nbSeed){
         if(checkNbSeeds(nbSeed)){
             for(int i = 0 ; i < nbSeed ; i++){
@@ -129,6 +133,16 @@ public class SeedController {
                 transportFaker.setDateStart(faker.date().birthday(-100, 0));
                 transportFaker.setDateEnd(faker.date().birthday(0, 100));
                 transportFaker.setPrice((long) faker.number().numberBetween(1, 2000));
+                transportFaker.setPostDate(new Date());
+                transportFaker.setUser(userService.getRandomUser());
+                transportFaker.setType(typeService.getRandomType());
+                transportFaker.setLieu(lieuService.getRandomLieu());
+                transportFaker.setPointDepart(faker.address().fullAddress());
+                transportFaker.setPointArriver(faker.address().fullAddress());
+                transportFaker.setNbPlaceDispo(faker.random().nextInt(1, 4));
+                transportFaker.setVehiculePerso(faker.beer().name()); // TODO
+                transportFaker.setMotif(motifService.getRandomMotif());
+                transportRepository.save(transportFaker);
             }
             return "[OK] Transports ajoutés";
         }else{
@@ -136,7 +150,7 @@ public class SeedController {
         }
     }
 
-    @GetMapping("/seedTypes")
+    @GetMapping("/seedtypes")
     public String seedTypes(int nbSeed){
         if(checkNbSeeds(nbSeed)){
             for(int i = 0 ; i < nbSeed ; i++){
@@ -152,7 +166,7 @@ public class SeedController {
         }
     }
 
-    @GetMapping("/seedUsers")
+    @GetMapping("/seedusers")
     public String seedUsers(int nbSeed){
         if(checkNbSeeds(nbSeed)){
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -176,11 +190,7 @@ public class SeedController {
     }
 
     @GetMapping("/test")
-    public String test(String ville){
-        if(lieuService.lieuExist(ville)){
-            return "[OK]";
-        }else{
-            return "[Error]";
-        }
+    public String test(){
+        return userService.getRandomUser() + "";
     }
 }

@@ -19,8 +19,11 @@ public class UserService {
 
     public User getRandomUser(){
         List<User> users = userRepository.findAll();
+        if(users.size() == 0){
+            return null;
+        }
         Random random = new Random();
-        return null;
+        return users.get(random.nextInt(users.size()));
     }
 
 }
