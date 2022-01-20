@@ -13,4 +13,5 @@ import java.util.Set;
 @Repository
 public interface TypeRepository extends JpaRepository<Type, Long> {
     Type findByLibelle(String type);
+    Type getTypeByLibelle(String libelle);
 }
