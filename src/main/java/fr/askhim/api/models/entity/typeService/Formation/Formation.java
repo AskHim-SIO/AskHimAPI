@@ -1,4 +1,4 @@
-package fr.askhim.api.models.entity.typeService;
+package fr.askhim.api.models.entity.typeService.Formation;
 
 import fr.askhim.api.models.entity.Service;
 import lombok.Getter;
@@ -12,10 +12,6 @@ import javax.persistence.*;
 @Table(name="Formation")
 public class Formation extends Service {
 
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
-
     @Column(nullable = false)
     private int nbHeure;
 
@@ -28,5 +24,5 @@ public class Formation extends Service {
 
     @ManyToOne
     @JoinColumn(name="competence_id", nullable=false)
-    private Formation formation;
+    private Competence competence;
 }

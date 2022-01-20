@@ -26,8 +26,8 @@ public class Type {
 	@ManyToMany(mappedBy = "types")
 	Set<User> prefer;
 
-	@OneToMany
-	Set<Service> services;
+//	@OneToMany
+//	Set<Service> services;
 
 
 
