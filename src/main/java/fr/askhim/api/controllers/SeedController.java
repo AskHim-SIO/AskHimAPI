@@ -5,6 +5,7 @@ import fr.askhim.api.models.entity.Lieu;
 import fr.askhim.api.models.entity.Type;
 import fr.askhim.api.models.entity.User;
 import fr.askhim.api.models.entity.typeService.Competence;
+import fr.askhim.api.models.entity.typeService.Course;
 import fr.askhim.api.models.entity.typeService.Motif;
 import fr.askhim.api.models.entity.typeService.Transport;
 import fr.askhim.api.repository.*;
@@ -26,6 +27,9 @@ public class SeedController {
 
     @Autowired
     private CompetenceRepository competenceRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
 
     @Autowired
     private LieuRepository lieuRepository;
@@ -87,6 +91,30 @@ public class SeedController {
                 competenceRepository.save(competenceFaker);
             }
             return "[OK] Competences ajoutées";
+        }else{
+            return "[Error] Le nombre doit être supérieur à 0";
+        }
+    }
+
+    @GetMapping("/seedcourses")
+    public String seedCourses(int nbSeed){
+        if(checkNbSeeds(nbSeed)){
+            for(int i = 0 ; i < nbSeed ; i++){
+                Course courseFaker = new Course();
+                courseFaker.setName(faker.beer().name()); // TODO
+                courseFaker.setDateStart(faker.date().birthday(-100, 0));
+                courseFaker.setDateEnd(faker.date().birthday(0, 100));
+                courseFaker.setPrice((long) faker.number().numberBetween(1, 2000));
+                courseFaker.setPostDate(new Date());
+                courseFaker.setUser(userService.getRandomUser());
+                courseFaker.setType(typeService.getRandomType());
+                courseFaker.setLieu(lieuService.getRandomLieu());
+                courseFaker.setAccompagnement(faker.beer().name()); // TODO
+                courseFaker.setTypeLieu(faker.beer().name()); // TODO
+                courseFaker.setAdresseLieu(faker.random().nextInt(1, 50)); // TODO
+                courseRepository.save(courseFaker);
+            }
+            return "[OK] Courses ajoutées";
         }else{
             return "[Error] Le nombre doit être supérieur à 0";
         }
