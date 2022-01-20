@@ -5,9 +5,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ServiceProfile {
+public class PhotoModel {
 
-    private Long userId;
-    private String name;
+    private Long id;
+    private String libelle;
 
 }

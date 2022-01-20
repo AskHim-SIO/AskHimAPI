@@ -4,16 +4,17 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Getter
 @Setter
 @Data
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class Service {
+public class Service {
 
     @Id
     @GeneratedValue
@@ -50,7 +51,7 @@ public abstract class Service {
 
     // un service a des photos
     @OneToMany(mappedBy = "service")
-    Set<Photo> photos;
+    private List<Photo> photos;
 
     //posté par?
     @ManyToOne
@@ -58,12 +59,12 @@ public abstract class Service {
     private User user;
 
     //Un service appartient à un type
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "type_id", nullable = false)
     private Type type;
 
     //Un service appartient à un lieu
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "lieu_id", nullable = false)
     private Lieu lieu;
 }

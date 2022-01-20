@@ -73,8 +73,8 @@ public class User{
 	Set<ResponseUserService> response;
 
 	//Un user demande des services
-	@OneToMany(mappedBy="user")
-	private Set<Service> services;
+//	@OneToMany(mappedBy="user")
+//	private Set<Service> services;
 
 	//un user peut avoir plusieurs tokens
 	@OneToMany(mappedBy="user")

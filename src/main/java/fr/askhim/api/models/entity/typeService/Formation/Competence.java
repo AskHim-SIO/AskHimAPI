@@ -1,5 +1,6 @@
-package fr.askhim.api.models.entity.typeService;
+package fr.askhim.api.models.entity.typeService.Formation;
 
+import fr.askhim.api.models.entity.typeService.Formation.Formation;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +21,6 @@ public class Competence {
     private String libelle;
 
     // un motif pour des transports
-    @OneToMany(mappedBy = "formation")
+    @OneToMany(mappedBy = "competence")
     Set<Formation> formations;
 }

@@ -1,10 +1,11 @@
-package fr.askhim.api.models.entity.typeService;
+package fr.askhim.api.models.entity.typeService.TacheMenageres;
 
-import fr.askhim.api.models.entity.Service;
+import fr.askhim.api.models.entity.typeService.TacheMenageres.TacheMenagere;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -25,5 +26,5 @@ public class Materiel {
             name = "Disposer_de",
             joinColumns = @JoinColumn(name = "materiel_id"),
             inverseJoinColumns = @JoinColumn(name = "tacheMenagere_id"))
-    Set<TacheMenagere> tacheMenageres;
+    List<TacheMenagere> tacheMenageres;
 }

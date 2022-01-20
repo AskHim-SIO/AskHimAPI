@@ -24,7 +24,7 @@ public class Lieu {
 	private String ville;
 
 	//une ville pour plusieurs services
-	@OneToMany(mappedBy="lieu")
-	private Set<Service> services;
+//	@OneToMany(mappedBy="lieu")
+//	private Set<Service> services;
 
 }

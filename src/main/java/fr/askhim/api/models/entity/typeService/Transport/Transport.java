@@ -1,4 +1,4 @@
-package fr.askhim.api.models.entity.typeService;
+package fr.askhim.api.models.entity.typeService.Transport;
 
 import fr.askhim.api.models.entity.Service;
 import lombok.Getter;
@@ -11,10 +11,6 @@ import javax.persistence.*;
 @Entity
 @Table(name="Transport")
 public class Transport extends Service {
-
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
 
     @Column(nullable = false)
     private String pointDepart;

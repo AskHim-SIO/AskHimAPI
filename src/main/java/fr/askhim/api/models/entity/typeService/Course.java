@@ -12,10 +12,6 @@ import javax.persistence.*;
 @Table(name="Course")
 public class Course extends Service {
 
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
-
     @Column(nullable = false)
     private String accompagnement;
 
