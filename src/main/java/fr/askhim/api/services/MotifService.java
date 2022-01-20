@@ -1,6 +1,6 @@
 package fr.askhim.api.services;
 
-import fr.askhim.api.models.entity.typeService.Motif;
+import fr.askhim.api.models.entity.typeService.Transport.Motif;
 import fr.askhim.api.repository.MotifRepository;
 import org.springframework.stereotype.Service;
 
