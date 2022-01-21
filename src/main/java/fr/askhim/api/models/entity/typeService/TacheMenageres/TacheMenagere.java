@@ -13,7 +13,11 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name="TacheMenagere")
-public class TacheMenagere extends Service {
+public class TacheMenagere {
+
+    @Id
+    @GeneratedValue
+    private Long id;
 
     @Column(nullable = false)
     private int nbHeure;
@@ -23,4 +27,8 @@ public class TacheMenagere extends Service {
 
     @ManyToMany(mappedBy = "tacheMenageres")
     List<Materiel> disposer_de;
+
+    @OneToOne
+    @JoinColumn(name="service_id", nullable=false)
+    private Service service;
 }

@@ -10,7 +10,11 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name="Formation")
-public class Formation extends Service {
+public class Formation {
+
+    @Id
+    @GeneratedValue
+    private Long id;
 
     @Column(nullable = false)
     private int nbHeure;
@@ -21,8 +25,11 @@ public class Formation extends Service {
     @Column(nullable = false)
     private String materiel;
 
-
     @ManyToOne
     @JoinColumn(name="competence_id", nullable=false)
     private Competence competence;
+
+    @OneToOne
+    @JoinColumn(name="service_id", nullable=false)
+    private Service service;
 }

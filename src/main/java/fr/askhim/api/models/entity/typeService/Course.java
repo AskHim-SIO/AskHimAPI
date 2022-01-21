@@ -10,7 +10,11 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name="Course")
-public class Course extends Service {
+public class Course {
+
+    @Id
+    @GeneratedValue
+    private Long id;
 
     @Column(nullable = false)
     private String accompagnement;
@@ -20,4 +24,8 @@ public class Course extends Service {
 
     @Column(nullable = false)
     private int adresseLieu;
+
+    @OneToOne
+    @JoinColumn(name="service_id", nullable=false)
+    private Service service;
 }
