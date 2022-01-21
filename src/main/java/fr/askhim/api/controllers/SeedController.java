@@ -2,6 +2,7 @@ package fr.askhim.api.controllers;
 
 import com.github.javafaker.Faker;
 import fr.askhim.api.models.entity.Lieu;
+import fr.askhim.api.models.entity.Service;
 import fr.askhim.api.models.entity.Type;
 import fr.askhim.api.models.entity.User;
 import fr.askhim.api.models.entity.typeService.Course;
@@ -156,7 +157,16 @@ public class SeedController {
     public String seedTransports(int nbSeed) {
         if (checkNbSeeds(nbSeed)) {
             for (int i = 0; i < nbSeed; i++) {
-                Transport transportFaker = new Transport();
+                Service transportServiceFaker = new Service();
+                transportServiceFaker.setName(faker.beer().name()); // TODO
+                transportServiceFaker.setDateStart(faker.date().birthday(-100, 0));
+                transportServiceFaker.setDateEnd(faker.date().birthday(0, 100));
+                transportServiceFaker.setPrice((long) faker.number().numberBetween(1, 2000));
+                transportServiceFaker.setPostDate(new Date());
+                transportServiceFaker.setUser(userService.getRandomUser());
+                transportServiceFaker.setType(typeService.getRandomType());
+                transportServiceFaker.setLieu(lieuService.getRandomLieu());
+                /*Transport transportFaker = new Transport();
                 transportFaker.setName(faker.beer().name()); // TODO
                 transportFaker.setDateStart(faker.date().birthday(-100, 0));
                 transportFaker.setDateEnd(faker.date().birthday(0, 100));
@@ -170,7 +180,7 @@ public class SeedController {
                 transportFaker.setNbPlaceDispo(faker.random().nextInt(1, 4));
                 transportFaker.setVehiculePerso(faker.beer().name()); // TODO
                 transportFaker.setMotif(motifService.getRandomMotif());
-                transportRepository.save(transportFaker);
+                transportRepository.save(transportFaker);*/
             }
             return "[OK] Transports ajoutés";
         } else {
