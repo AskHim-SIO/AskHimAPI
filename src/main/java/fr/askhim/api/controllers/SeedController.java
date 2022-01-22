@@ -13,6 +13,7 @@ import fr.askhim.api.models.entity.typeService.Transport.Motif;
 import fr.askhim.api.models.entity.typeService.Transport.Transport;
 import fr.askhim.api.repository.*;
 import fr.askhim.api.services.*;
+import fr.askhim.api.type.TypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
