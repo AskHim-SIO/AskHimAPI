@@ -10,7 +10,11 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name="Transport")
-public class Transport extends Service {
+public class Transport {
+
+    @Id
+    @GeneratedValue
+    private Long id;
 
     @Column(nullable = false)
     private String pointDepart;
@@ -27,4 +31,8 @@ public class Transport extends Service {
     @ManyToOne
     @JoinColumn(name="motif_id", nullable=false)
     private Motif motif;
+
+    @OneToOne
+    @JoinColumn(name="service_id", nullable=false)
+    private Service service;
 }

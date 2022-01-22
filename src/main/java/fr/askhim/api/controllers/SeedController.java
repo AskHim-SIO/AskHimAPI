@@ -7,17 +7,22 @@ import fr.askhim.api.models.entity.Type;
 import fr.askhim.api.models.entity.User;
 import fr.askhim.api.models.entity.typeService.Course;
 import fr.askhim.api.models.entity.typeService.Formation.Competence;
+import fr.askhim.api.models.entity.typeService.TacheMenageres.Materiel;
+import fr.askhim.api.models.entity.typeService.TacheMenageres.TacheMenagere;
 import fr.askhim.api.models.entity.typeService.Transport.Motif;
 import fr.askhim.api.models.entity.typeService.Transport.Transport;
 import fr.askhim.api.repository.*;
 import fr.askhim.api.services.*;
+import fr.askhim.api.type.TypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 @RestController
@@ -36,7 +41,16 @@ public class SeedController {
     private LieuRepository lieuRepository;
 
     @Autowired
+    private MaterielRepository materielRepository;
+
+    @Autowired
     private MotifRepository motifRepository;
+
+    @Autowired
+    private ServiceRepository serviceRepository;
+
+    @Autowired
+    private TacheMenagereRepository tacheMenagereRepository;
 
     @Autowired
     private TransportRepository transportRepository;
@@ -57,6 +71,8 @@ public class SeedController {
 
     private final LieuService lieuService;
 
+    private final MaterielService materielService;
+
     private final MotifService motifService;
 
     private final TypeService typeService;
@@ -65,9 +81,10 @@ public class SeedController {
 
     // ---------------
 
-    public SeedController(CompetenceService competenceService, LieuService lieuService, MotifService motifService, TypeService typeService, UserService userService) {
+    public SeedController(CompetenceService competenceService, LieuService lieuService, MaterielService materielService, MotifService motifService, TypeService typeService, UserService userService) {
         this.competenceService = competenceService;
         this.lieuService = lieuService;
+        this.materielService = materielService;
         this.motifService = motifService;
         this.typeService = typeService;
         this.userService = userService;
@@ -101,15 +118,18 @@ public class SeedController {
     public String seedCourses(int nbSeed) {
         if (checkNbSeeds(nbSeed)) {
             for (int i = 0; i < nbSeed; i++) {
+                Service courseServiceFaker = new Service();
+                courseServiceFaker.setName(faker.beer().name()); // TODO
+                courseServiceFaker.setDateStart(faker.date().birthday(-100, 0));
+                courseServiceFaker.setDateEnd(faker.date().birthday(0, 100));
+                courseServiceFaker.setPrice((long) faker.number().numberBetween(1, 2000));
+                courseServiceFaker.setPostDate(new Date());
+                courseServiceFaker.setUser(userService.getRandomUser());
+                courseServiceFaker.setType(typeRepository.getTypeByLibelle("Course"));
+                courseServiceFaker.setLieu(lieuService.getRandomLieu());
+                Service newService = serviceRepository.save(courseServiceFaker);
                 Course courseFaker = new Course();
-                courseFaker.setName(faker.beer().name()); // TODO
-                courseFaker.setDateStart(faker.date().birthday(-100, 0));
-                courseFaker.setDateEnd(faker.date().birthday(0, 100));
-                courseFaker.setPrice((long) faker.number().numberBetween(1, 2000));
-                courseFaker.setPostDate(new Date());
-                courseFaker.setUser(userService.getRandomUser());
-                courseFaker.setType(typeService.getRandomType());
-                courseFaker.setLieu(lieuService.getRandomLieu());
+                courseFaker.setService(newService);
                 courseFaker.setAccompagnement(faker.beer().name()); // TODO
                 courseFaker.setTypeLieu(faker.beer().name()); // TODO
                 courseFaker.setAdresseLieu(faker.random().nextInt(1, 50)); // TODO
@@ -137,6 +157,22 @@ public class SeedController {
         }
     }
 
+    @GetMapping("/seedmateriels")
+    public String seedMateriels(int nbSeed){
+        if (checkNbSeeds(nbSeed)){
+            for (int i = 0; i < nbSeed; i++){
+                Materiel materielFaker = new Materiel();
+                do {
+                    materielFaker.setLibelle(faker.beer().name()); // TODO
+                }while(materielService.materielExist(materielFaker.getLibelle()));
+                materielRepository.save(materielFaker);
+            }
+            return "[OK] Materiels ajoutés";
+        }else {
+            return "[Error] Le nombre doit être supérieur à 0";
+        }
+    }
+
     @GetMapping("/seedmotifs")
     public String seedMotifs(int nbSeed) {
         if (checkNbSeeds(nbSeed)) {
@@ -153,6 +189,35 @@ public class SeedController {
         }
     }
 
+    @GetMapping("/seedtachesmenagere")
+    public String seedtachesMenagere(int nbSeed){
+        if (checkNbSeeds(nbSeed)){
+            for (int i = 0; i < nbSeed; i++){
+                Service tachesManegereServiceFaker = new Service();
+                tachesManegereServiceFaker.setName(faker.beer().name()); // TODO
+                tachesManegereServiceFaker.setDateStart(faker.date().birthday(-100, 0));
+                tachesManegereServiceFaker.setDateEnd(faker.date().birthday(0, 100));
+                tachesManegereServiceFaker.setPrice((long) faker.number().numberBetween(1, 2000));
+                tachesManegereServiceFaker.setPostDate(new Date());
+                tachesManegereServiceFaker.setUser(userService.getRandomUser());
+                tachesManegereServiceFaker.setType(typeRepository.getTypeByLibelle("Transport"));
+                tachesManegereServiceFaker.setLieu(lieuService.getRandomLieu());
+                Service newService = serviceRepository.save(tachesManegereServiceFaker);
+                TacheMenagere tacheMenagereFaker = new TacheMenagere();
+                tacheMenagereFaker.setService(newService);
+                tacheMenagereFaker.setNbHeure(faker.random().nextInt(1,6));
+                tacheMenagereFaker.setLibelle(faker.beer().name()); // TODO
+                List<Materiel> materiels = new ArrayList<>();
+                materiels.add(materielService.getRandomMateriel());
+                tacheMenagereFaker.setDisposer_de(materiels);
+                tacheMenagereRepository.save(tacheMenagereFaker);
+            }
+            return "[OK] Tâches ménagère ajoutés";
+        } else {
+            return "[Error] Le nombre doit être supérieur à 0";
+        }
+    }
+
     @GetMapping("/seedtransports")
     public String seedTransports(int nbSeed) {
         if (checkNbSeeds(nbSeed)) {
@@ -164,23 +229,17 @@ public class SeedController {
                 transportServiceFaker.setPrice((long) faker.number().numberBetween(1, 2000));
                 transportServiceFaker.setPostDate(new Date());
                 transportServiceFaker.setUser(userService.getRandomUser());
-                transportServiceFaker.setType(typeService.getRandomType());
+                transportServiceFaker.setType(typeRepository.getTypeByLibelle("Transport"));
                 transportServiceFaker.setLieu(lieuService.getRandomLieu());
-                /*Transport transportFaker = new Transport();
-                transportFaker.setName(faker.beer().name()); // TODO
-                transportFaker.setDateStart(faker.date().birthday(-100, 0));
-                transportFaker.setDateEnd(faker.date().birthday(0, 100));
-                transportFaker.setPrice((long) faker.number().numberBetween(1, 2000));
-                transportFaker.setPostDate(new Date());
-                transportFaker.setUser(userService.getRandomUser());
-                transportFaker.setType(typeService.getRandomType());
-                transportFaker.setLieu(lieuService.getRandomLieu());
+                Service newService = serviceRepository.save(transportServiceFaker);
+                Transport transportFaker = new Transport();
+                transportFaker.setService(newService);
                 transportFaker.setPointDepart(faker.address().fullAddress());
                 transportFaker.setPointArriver(faker.address().fullAddress());
                 transportFaker.setNbPlaceDispo(faker.random().nextInt(1, 4));
                 transportFaker.setVehiculePerso(faker.beer().name()); // TODO
                 transportFaker.setMotif(motifService.getRandomMotif());
-                transportRepository.save(transportFaker);*/
+                transportRepository.save(transportFaker);
             }
             return "[OK] Transports ajoutés";
         } else {

@@ -10,7 +10,11 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name="Loisir")
-public class Loisir extends Service {
+public class Loisir {
+
+    @Id
+    @GeneratedValue
+    private Long id;
 
     @Column(nullable = false)
     private int nbPersonne;
@@ -21,4 +25,8 @@ public class Loisir extends Service {
     @ManyToOne
     @JoinColumn(name="jeu_id", nullable=false)
     private Jeu jeu;
+
+    @OneToOne
+    @JoinColumn(name="service_id", nullable=false)
+    private Service service;
 }
