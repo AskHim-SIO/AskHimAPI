@@ -2,6 +2,7 @@ package fr.askhim.api.model;
 
 
 import fr.askhim.api.models.entity.Lieu;
+import fr.askhim.api.models.entity.Type;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,5 +20,6 @@ public class ServiceMinModel {
     private Integer price;
     private Date postDate;
     private Lieu lieu;
+    private Type type;
     private List<PhotoModel> photos = new ArrayList<>();
 }
