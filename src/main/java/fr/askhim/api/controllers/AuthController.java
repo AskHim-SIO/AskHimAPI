@@ -68,6 +68,7 @@ public class AuthController {
                 return token.getId();
             }
         }
+        // 401
         response.setStatus(HttpStatus.UNAUTHORIZED.value(), "LOGINS_INCORRECT");
         return null;
     }
