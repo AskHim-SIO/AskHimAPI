@@ -11,13 +11,16 @@ import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.payload.UserRequest;
 import fr.askhim.api.repository.TokenRepository;
 import fr.askhim.api.repository.UserRepository;
+import fr.askhim.api.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
@@ -28,13 +31,28 @@ import java.util.UUID;
 @RequestMapping("/user")
 public class UserController {
 
+    // -- Repositories --
+
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private TokenRepository tokenRepository;
 
+    // -- Services --
+
+    private final UserService userService;
+
+    // -- Others --
+
     private ModelMapper mapper = new ModelMapper();
+
+
+    public UserController(UserService userService){
+        this.userService = userService;
+    }
+
+
 
     @GetMapping("/get-users")
     public List<User> getUsers() {
@@ -42,10 +60,11 @@ public class UserController {
     }
 
     @GetMapping("/get-user/{token}")
-    public UserModel getUserProfile(@PathVariable String token) {
+    public Object getUserProfile(@PathVariable String token) {
         Optional<Token> tokenRes = tokenRepository.findById(token);
         if (!tokenRes.isPresent()) {
-            throw new AppException("L'utilisateur n'a pas été trouvé.");
+            // 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "USER_NOT_FOUND", "L'utilisateur n'a pas été trouvé"));
         }
 
         Token userTok = tokenRes.get();
@@ -56,6 +75,12 @@ public class UserController {
 
     @PostMapping("/create-user")
     public ResponseEntity createUser(@RequestBody RegisterModel user) {
+
+        if(userService.userExist(user.getEmail())){
+            // 409
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(false, "USER_ALREADY_EXIST", "Un compte est déjà créé avec cette adresse email."));
+        }
+
         User userEnt = new User();
 
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -70,16 +95,16 @@ public class UserController {
                 .buildAndExpand(result.getId())
                 .toUri();
 
-        return ResponseEntity.created(location).body(
-                new ApiResponse(true,
-                        "L'utilisateur a été crée."));
+        // 201
+        return ResponseEntity.created(location).body(new ApiResponse(true, "USER_CREATED", "L'utilisateur a été crée."));
     }
 
     @PutMapping("/update-user/{id}")
     public ResponseEntity updateUser(@RequestBody UserRequest request, @PathVariable Long id) {
         Optional<User> user = userRepository.findById(id);
         if (!user.isPresent()) {
-            throw new AppException("L'utilisateur n'a pas été trouvé.");
+            // 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "USER_NOT_FOUND", "L'utilisateur n'a pas été trouvé"));
         }
 
         User userEnt = user.get();
@@ -88,9 +113,8 @@ public class UserController {
         userEnt.setFirstname(request.firstname);
 
         userRepository.save(userEnt);
-        return ResponseEntity.ok()
-                .body(new ApiResponse(true,
-                        "L'utilisateur a été mis à jour."));
+        // 200
+        return ResponseEntity.ok().body(new ApiResponse(true, "USER_UPDATED", "L'utilisateur a été mis à jour."));
     }
 
     @DeleteMapping("/delete-user/{id}")
@@ -100,9 +124,8 @@ public class UserController {
             throw new AppException("L'utilisateur n'a pas été trouvé.");
         }
         userRepository.delete(userResearch.get());
-        return ResponseEntity.ok()
-                .body(new ApiResponse(true,
-                        "L'utilisateur a été supprimé."));
+        // 200
+        return ResponseEntity.ok().body(new ApiResponse(true, "USER_DELETED","L'utilisateur a été supprimé."));
     }
 
 

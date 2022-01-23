@@ -17,6 +17,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    public User getUserByEmail(String email){
+        return userRepository.findByEmail(email);
+    }
+
+    public boolean userExist(String email){
+        return getUserByEmail(email) != null;
+    }
+
     public User getRandomUser(){
         List<User> users = userRepository.findAll();
         if(users.size() == 0){

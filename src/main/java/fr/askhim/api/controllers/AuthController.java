@@ -5,10 +5,13 @@ import fr.askhim.api.models.entity.Token;
 import fr.askhim.api.models.entity.User;
 import fr.askhim.api.repository.TokenRepository;
 import fr.askhim.api.repository.UserRepository;
+import fr.askhim.api.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -24,36 +27,48 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
+    private final UserService userService;
+
+    public AuthController(UserService userService){
+        this.userService = userService;
+    }
+
     @PostMapping("login")
-    public String loginUser(@RequestBody LoginModel request) {
-        List<User> users = userRepository.findByEmail(request.getEmail());
+    public String loginUser(HttpServletResponse response, @RequestBody LoginModel request) {
+        boolean checkPass = true;
+        if(!userService.userExist(request.getEmail())){
+            checkPass = false;
+        }
+        if(checkPass){
+            User user = userRepository.findByEmail(request.getEmail());
 
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-        User userConnect = null;
-        for (User user : users) {
+            User userConnect = null;
+
             if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-
                 userConnect = user;
             }
+
+            if (userConnect != null) {
+                UUID uuid = UUID.randomUUID();
+
+                LocalDate dateCreation = LocalDate.now();
+                LocalDate dateExpiration = LocalDate.now().plusMonths(1);
+
+                Token token = new Token();
+
+                token.setId(uuid.toString());
+                token.setDateC(dateCreation);
+                token.setDateP(dateExpiration);
+                token.setUser(userConnect);
+
+                tokenRepository.save(token);
+
+                return token.getId();
+            }
         }
-        if (userConnect != null) {
-            UUID uuid = UUID.randomUUID();
-
-            LocalDate dateCreation = LocalDate.now();
-            LocalDate dateExpiration = LocalDate.now().plusMonths(1);
-
-            Token token = new Token();
-
-            token.setId(uuid.toString());
-            token.setDateC(dateCreation);
-            token.setDateP(dateExpiration);
-            token.setUser(userConnect);
-
-            tokenRepository.save(token);
-
-            return token.getId();
-        }
+        response.setStatus(HttpStatus.UNAUTHORIZED.value(), "LOGINS_INCORRECT");
         return null;
     }
 
