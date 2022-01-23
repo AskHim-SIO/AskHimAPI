@@ -7,6 +7,7 @@ import fr.askhim.api.models.entity.Type;
 import fr.askhim.api.models.entity.User;
 import fr.askhim.api.models.entity.typeService.Course;
 import fr.askhim.api.models.entity.typeService.Formation.Competence;
+import fr.askhim.api.models.entity.typeService.Formation.Formation;
 import fr.askhim.api.models.entity.typeService.Loisir.Jeu;
 import fr.askhim.api.models.entity.typeService.Loisir.Loisir;
 import fr.askhim.api.models.entity.typeService.TacheMenageres.Materiel;
@@ -38,6 +39,9 @@ public class SeedController {
 
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private FormationRepository formationRepository;
 
     @Autowired
     private JeuRepository jeuRepository;
@@ -138,6 +142,25 @@ public class SeedController {
                 courseRepository.save(courseFaker);
             }
             return "[OK] Courses ajoutées";
+        } else {
+            return "[Error] Le nombre doit être supérieur à 0";
+        }
+    }
+
+    @GetMapping("/seedformations")
+    public String seedFormations(int nbSeed){
+        if (checkNbSeeds(nbSeed)){
+            for (int i = 0; i < nbSeed; i++){
+                Service newService = buildServiceSeeded(TypeEnum.FORMATION);
+                Formation formationFaker = new Formation();
+                formationFaker.setService(newService);
+                formationFaker.setNbHeure(faker.random().nextInt(2, 16));
+                formationFaker.setPresence(faker.beer().name()); // TODO
+                formationFaker.setMateriel(faker.beer().name()); // TODO
+                formationFaker.setCompetence(competenceService.getRandomCompetence());
+                formationRepository.save(formationFaker);
+            }
+            return "[OK] Formations ajoutés";
         } else {
             return "[Error] Le nombre doit être supérieur à 0";
         }

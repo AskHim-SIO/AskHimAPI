@@ -4,6 +4,9 @@ import fr.askhim.api.models.entity.typeService.Formation.Competence;
 import fr.askhim.api.repository.CompetenceRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Random;
+
 @Service
 public class CompetenceService {
 
@@ -19,6 +22,15 @@ public class CompetenceService {
 
     public boolean competenceExist(String libelle){
         return getCompetenceByLibelle(libelle) != null;
+    }
+
+    public Competence getRandomCompetence(){
+        List<Competence> competences = competenceRepository.findAll();
+        if(competences.size() == 0){
+            return null;
+        }
+        Random random = new Random();
+        return competences.get(random.nextInt(competences.size()));
     }
 
 }
