@@ -69,7 +69,7 @@ public class AuthController {
             }
         }
         // 401
-        response.setStatus(HttpStatus.UNAUTHORIZED.value(), "LOGINS_INCORRECT");
+        response.setStatus(HttpStatus.UNAUTHORIZED.value(), "LOGINS_INVALID");
         return null;
     }
 

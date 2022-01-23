@@ -121,7 +121,8 @@ public class UserController {
     public ResponseEntity deleteUser(@PathVariable Long id) {
         Optional<User> userResearch = userRepository.findById(id);
         if (!userResearch.isPresent()) {
-            throw new AppException("L'utilisateur n'a pas été trouvé.");
+            // 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "USER_NOT_FOUND", "L'utilisateur n'a pas été trouvé"));
         }
         userRepository.delete(userResearch.get());
         // 200
