@@ -1,10 +1,7 @@
 package fr.askhim.api.controllers;
 
 import com.github.javafaker.Faker;
-import fr.askhim.api.entity.Lieu;
-import fr.askhim.api.entity.Service;
-import fr.askhim.api.entity.Type;
-import fr.askhim.api.entity.User;
+import fr.askhim.api.entity.*;
 import fr.askhim.api.entity.typeService.Course;
 import fr.askhim.api.entity.typeService.Formation.Competence;
 import fr.askhim.api.entity.typeService.Formation.Formation;
@@ -342,6 +339,30 @@ public class SeedController {
         serviceEntityFaker.setUser(userService.getRandomUser());
         serviceEntityFaker.setType(typeRepository.getTypeByLibelle(typeEnum.getLibelle()));
         serviceEntityFaker.setLieu(lieuService.getRandomLieu());
+        List<Photo> photos = new ArrayList<>();
+        Photo photo = new Photo();
+        switch(typeEnum){
+            case TRANSPORT:
+                photo.setLibelle("http://cdn.askhim.ctrempe.fr/transport.jpg");
+                break;
+
+            case COURSE:
+                photo.setLibelle("http://cdn.askhim.ctrempe.fr/course.jpg");
+                break;
+
+            case FORMATION:
+                photo.setLibelle("http://cdn.askhim.ctrempe.fr/formation.jpg");
+                break;
+
+            case LOISIR:
+                photo.setLibelle("http://cdn.askhim.ctrempe.fr/loisir.jpg");
+                break;
+
+            case TACHE_MENAGERE:
+                photo.setLibelle("http://cdn.askhim.ctrempe.fr/tacheMenagere.jpg");
+                break;
+        }
+        // enregistrer meta photos en base
         return serviceRepository.save(serviceEntityFaker);
     }
 }
