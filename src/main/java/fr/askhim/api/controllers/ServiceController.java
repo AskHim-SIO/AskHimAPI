@@ -77,12 +77,19 @@ public class ServiceController {
 
     @GetMapping("/get-services-from-type/{typeId}")
     public Object getServicesFromType(@PathVariable Long typeId){
-        Optional<Type> type = typeRepository.findById(typeId);
-        if(!type.isPresent()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TYPE", "Le type spécifié est introuvable"));
-        }
+            Optional<Type> type = typeRepository.findById(typeId);
+            if(!type.isPresent()){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TYPE", "Le type spécifié est introuvable"));
+            }
 
-        return serviceService.findByType(TypeEnum.idToTypeEnum(typeId));
+            List<Service> services = serviceService.findByType(TypeEnum.idToTypeEnum(typeId));
+            List<ServiceMinModel> servicesMinModel = new ArrayList<>();
+
+            for(Service service : services){
+                servicesMinModel.add(serviceMapToDTO(service));
+            }
+
+            return servicesMinModel;
     }
 
 
