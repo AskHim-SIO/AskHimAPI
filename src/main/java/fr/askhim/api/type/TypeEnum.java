@@ -1,25 +1,21 @@
 package fr.askhim.api.type;
 
-import fr.askhim.api.models.entity.Type;
-import fr.askhim.api.repository.TypeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public enum TypeEnum {
 
-    TRANSPORT(1, "Transport"),
-    COURSE(2, "Course"),
-    FORMATION(3, "Formation"),
-    LOISIR(4, "Loisir"),
-    TACHE_MENAGERE(5, "Tâche ménagère");
+    TRANSPORT(1L, "Transport"),
+    COURSE(2L, "Course"),
+    FORMATION(3L, "Formation"),
+    LOISIR(4L, "Loisir"),
+    TACHE_MENAGERE(5L, "Tâche ménagère");
 
-    private int id;
+    private Long id;
     private String libelle;
-    public static Map<Integer, TypeEnum> types = new HashMap<>();
+    public static Map<Long, TypeEnum> types = new HashMap<>();
 
-    TypeEnum(int id, String libelle){
+    TypeEnum(Long id, String libelle){
         this.id = id;
         this.libelle = libelle;
     }
@@ -30,7 +26,7 @@ public enum TypeEnum {
         }
     }
 
-    public int getId(){
+    public Long getId(){
         return id;
     }
 
@@ -38,7 +34,7 @@ public enum TypeEnum {
         return libelle;
     }
 
-    public static TypeEnum idToTypeEnum(int id){
+    public static TypeEnum idToTypeEnum(Long id){
         return types.get(id);
     }
 

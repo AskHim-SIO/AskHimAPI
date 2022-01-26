@@ -1,6 +1,6 @@
-package fr.askhim.api.models.entity.typeService.Transport;
+package fr.askhim.api.entity.typeService.Transport;
 
-import fr.askhim.api.models.entity.Service;
+import fr.askhim.api.entity.Service;
 import lombok.Getter;
 import lombok.Setter;
 

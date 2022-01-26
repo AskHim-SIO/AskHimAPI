@@ -1,13 +1,9 @@
-package fr.askhim.api.models.entity;
+package fr.askhim.api.entity;
 
 import lombok.*;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
 
 @Getter
 @Setter

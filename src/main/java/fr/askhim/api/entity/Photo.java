@@ -1,20 +1,18 @@
-package fr.askhim.api.models.entity;
+package fr.askhim.api.entity;
 
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.Set;
 
 @Getter
 @Setter
 @Data
 @Entity
-@Table(name = "Type")
+@Table(name = "Photo")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Type {
+public class Photo {
 	
 	@Id
 	@GeneratedValue
@@ -23,11 +21,10 @@ public class Type {
 	@Column(nullable = false)
 	private String libelle;
 
-	@ManyToMany(mappedBy = "types")
-	Set<User> prefer;
+	@ManyToOne
+	@JoinColumn(name="service_id", nullable=false)
+	private Service service;
 
-//	@OneToMany
-//	Set<Service> services;
 
 
 

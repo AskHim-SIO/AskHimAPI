@@ -1,6 +1,6 @@
 package fr.askhim.api.services;
 
-import fr.askhim.api.models.entity.typeService.TacheMenageres.Materiel;
+import fr.askhim.api.entity.typeService.TacheMenageres.Materiel;
 import fr.askhim.api.repository.MaterielRepository;
 import org.springframework.stereotype.Service;
 

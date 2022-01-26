@@ -6,14 +6,20 @@ import fr.askhim.api.model.Service.LoisirModel.LoisirModel;
 import fr.askhim.api.model.Service.TacheMenagereModel.TacheMenagereModel;
 import fr.askhim.api.model.Service.TransportModel.TransportModel;
 import fr.askhim.api.model.ServiceMinModel;
-import fr.askhim.api.models.entity.Service;
-import fr.askhim.api.models.entity.Type;
+import fr.askhim.api.entity.Service;
+import fr.askhim.api.entity.Type;
+import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.repository.ServiceRepository;
 import fr.askhim.api.repository.TypeRepository;
+import fr.askhim.api.services.ServiceService;
+import fr.askhim.api.services.TypeService;
+import fr.askhim.api.type.TypeEnum;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -32,7 +38,15 @@ public class ServiceController {
     @Autowired
     private TypeRepository typeRepository;
 
+    private final ServiceService serviceService;
+    private final TypeService typeService;
+
     private ModelMapper mapper = new ModelMapper();
+
+    public ServiceController(ServiceService serviceService, TypeService typeService){
+        this.serviceService = serviceService;
+        this.typeService = typeService;
+    }
 
     @GetMapping("/get-services")
     public List<ServiceMinModel> getServices() {
@@ -51,14 +65,24 @@ public class ServiceController {
     @GetMapping("/get-recent-services")
     public List<ServiceMinModel> getRecentServices() {
         //todo tester l'ordre recent
-        List<Service> services = serviceRepository.findTop20ByOrderByPostDateDesc();
+        List<Service> serviceEntities = serviceRepository.findTop20ByOrderByPostDateDesc();
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
-        services.forEach(service -> {
+        serviceEntities.forEach(service -> {
             serviceModels.add(serviceMapToDTO(service));
         });
 
         return serviceModels;
+    }
+
+    @GetMapping("/get-services-from-type/{typeId}")
+    public Object getServicesFromType(@PathVariable Long typeId){
+        Optional<Type> type = typeRepository.findById(typeId);
+        if(!type.isPresent()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TYPE", "Le type spécifié est introuvable"));
+        }
+
+        return serviceService.findByType(TypeEnum.idToTypeEnum(typeId));
     }
 
 
@@ -66,12 +90,12 @@ public class ServiceController {
     public List<TransportModel> getTransportsServices() {
 
         //transport
-        Optional<Type> type = typeRepository.findById(Long.valueOf(1));
+        Type type = typeRepository.findById(TypeEnum.TRANSPORT.getId()).get();
 
-        List<Service> services = serviceRepository.findByType(type);
+        List<Service> serviceEntities = serviceRepository.findByType(type);
         List<TransportModel> transportModels = new ArrayList<>();
 
-        services.forEach(service -> {
+        serviceEntities.forEach(service -> {
             transportModels.add(transportMapToDTO(service));
         });
 
@@ -82,12 +106,12 @@ public class ServiceController {
     public List<CourseModel> getCoursesServices() {
 
         //course
-        Optional<Type> type = typeRepository.findById(Long.valueOf(2));
+        Type type = typeRepository.findById(TypeEnum.COURSE.getId()).get();
 
-        List<Service> services = serviceRepository.findByType(type);
+        List<Service> serviceEntities = serviceRepository.findByType(type);
         List<CourseModel> courseModels = new ArrayList<>();
 
-        services.forEach(service -> {
+        serviceEntities.forEach(service -> {
             courseModels.add(courseMapToDTO(service));
         });
 
@@ -98,12 +122,12 @@ public class ServiceController {
     public List<FormationModel> getFormationsServices() {
 
         //formation
-        Optional<Type> type = typeRepository.findById(Long.valueOf(3));
+        Type type = typeRepository.findById(TypeEnum.FORMATION.getId()).get();
 
-        List<Service> services = serviceRepository.findByType(type);
+        List<Service> serviceEntities = serviceRepository.findByType(type);
         List<FormationModel> formationModels = new ArrayList<>();
 
-        services.forEach(service -> {
+        serviceEntities.forEach(service -> {
             formationModels.add(formationMapToDTO(service));
         });
 
@@ -114,12 +138,12 @@ public class ServiceController {
     public List<LoisirModel> getLoisirsServices() {
 
         //loisirs
-        Optional<Type> type = typeRepository.findById(Long.valueOf(3));
+        Type type = typeRepository.findById(TypeEnum.LOISIR.getId()).get();
 
-        List<Service> services = serviceRepository.findByType(type);
+        List<Service> serviceEntities = serviceRepository.findByType(type);
         List<LoisirModel> loisirModels = new ArrayList<>();
 
-        services.forEach(service -> {
+        serviceEntities.forEach(service -> {
             loisirModels.add(loisirMapToDTO(service));
         });
 
@@ -130,12 +154,12 @@ public class ServiceController {
     public List<TacheMenagereModel> getTacheMenagereServices() {
 
         //TacheMenagere
-        Optional<Type> type = typeRepository.findById(Long.valueOf(3));
+        Type type = typeRepository.findById(TypeEnum.TACHE_MENAGERE.getId()).get();
 
-        List<Service> services = serviceRepository.findByType(type);
+        List<Service> serviceEntities = serviceRepository.findByType(type);
         List<TacheMenagereModel> tacheMenagereModels = new ArrayList<>();
 
-        services.forEach(service -> {
+        serviceEntities.forEach(service -> {
             tacheMenagereModels.add(tacheMenagereMapToDTO(service));
         });
 

@@ -1,6 +1,6 @@
 package fr.askhim.api.repository;
 
-import fr.askhim.api.models.entity.typeService.Formation.Competence;
+import fr.askhim.api.entity.typeService.Formation.Competence;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

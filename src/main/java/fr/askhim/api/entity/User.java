@@ -1,15 +1,10 @@
-package fr.askhim.api.models.entity;
+package fr.askhim.api.entity;
 
 import javax.persistence.*;
 
-import fr.askhim.api.models.entity.key.ResponseUserServiceKey;
 import lombok.*;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 @Getter

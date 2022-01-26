@@ -1,7 +1,6 @@
 package fr.askhim.api.services;
 
-import fr.askhim.api.models.entity.User;
-import fr.askhim.api.payload.UserRequest;
+import fr.askhim.api.entity.User;
 import fr.askhim.api.repository.UserRepository;
 import org.springframework.stereotype.Service;
 

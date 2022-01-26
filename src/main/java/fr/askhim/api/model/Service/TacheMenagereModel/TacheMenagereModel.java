@@ -1,7 +1,6 @@
 package fr.askhim.api.model.Service.TacheMenagereModel;
 
 import fr.askhim.api.model.Service.ServiceModel;
-import fr.askhim.api.models.entity.typeService.TacheMenageres.Materiel;
 
 import java.util.ArrayList;
 import java.util.List;

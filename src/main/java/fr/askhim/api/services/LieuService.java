@@ -1,6 +1,6 @@
 package fr.askhim.api.services;
 
-import fr.askhim.api.models.entity.Lieu;
+import fr.askhim.api.entity.Lieu;
 import fr.askhim.api.repository.LieuRepository;
 import org.springframework.stereotype.Service;
 

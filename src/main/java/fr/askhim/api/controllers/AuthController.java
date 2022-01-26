@@ -1,8 +1,8 @@
 package fr.askhim.api.controllers;
 
 import fr.askhim.api.model.AuthModel.LoginModel;
-import fr.askhim.api.models.entity.Token;
-import fr.askhim.api.models.entity.User;
+import fr.askhim.api.entity.Token;
+import fr.askhim.api.entity.User;
 import fr.askhim.api.repository.TokenRepository;
 import fr.askhim.api.repository.UserRepository;
 import fr.askhim.api.services.UserService;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 

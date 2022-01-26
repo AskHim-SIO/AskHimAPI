@@ -1,12 +1,10 @@
 package fr.askhim.api.controllers;
 
-import fr.askhim.api.exception.AppException;
-import fr.askhim.api.model.AuthModel.LoginModel;
 import fr.askhim.api.model.AuthModel.RegisterModel;
 import fr.askhim.api.model.TokenModel;
 import fr.askhim.api.model.UserModel;
-import fr.askhim.api.models.entity.Token;
-import fr.askhim.api.models.entity.User;
+import fr.askhim.api.entity.Token;
+import fr.askhim.api.entity.User;
 import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.payload.UserRequest;
 import fr.askhim.api.repository.TokenRepository;
@@ -20,12 +18,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")

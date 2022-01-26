@@ -1,4 +1,4 @@
-package fr.askhim.api.models.entity;
+package fr.askhim.api.entity;
 
 import lombok.*;
 

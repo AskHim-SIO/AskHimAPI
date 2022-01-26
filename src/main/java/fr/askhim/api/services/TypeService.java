@@ -1,6 +1,6 @@
 package fr.askhim.api.services;
 
-import fr.askhim.api.models.entity.Type;
+import fr.askhim.api.entity.Type;
 import fr.askhim.api.repository.TypeRepository;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +22,10 @@ public class TypeService {
 
     public boolean typeExist(String libelle){
         return getTypeByLibelle(libelle) != null;
+    }
+
+    public List<Type> getAllTypes(){
+        return typeRepository.findAll();
     }
 
     public Type getRandomType(){

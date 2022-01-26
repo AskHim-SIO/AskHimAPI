@@ -1,4 +1,4 @@
-package fr.askhim.api.models.entity.key;
+package fr.askhim.api.entity.key;
 
 
 import javax.persistence.Column;

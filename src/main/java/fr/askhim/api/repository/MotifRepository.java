@@ -1,7 +1,7 @@
 package fr.askhim.api.repository;
 
 
-import fr.askhim.api.models.entity.typeService.Transport.Motif;
+import fr.askhim.api.entity.typeService.Transport.Motif;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

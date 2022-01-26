@@ -3,7 +3,6 @@ package fr.askhim.api.model.Service;
 
 import fr.askhim.api.model.LieuModel;
 import fr.askhim.api.model.PhotoModel;
-import fr.askhim.api.models.entity.Lieu;
 import lombok.Getter;
 import lombok.Setter;
 

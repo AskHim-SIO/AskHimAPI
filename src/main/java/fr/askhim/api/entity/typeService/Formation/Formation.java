@@ -1,6 +1,6 @@
-package fr.askhim.api.models.entity.typeService;
+package fr.askhim.api.entity.typeService.Formation;
 
-import fr.askhim.api.models.entity.Service;
+import fr.askhim.api.entity.Service;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,21 +9,25 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name="Course")
-public class Course {
+@Table(name="Formation")
+public class Formation {
 
     @Id
     @GeneratedValue
     private Long id;
 
     @Column(nullable = false)
-    private String accompagnement;
+    private int nbHeure;
 
     @Column(nullable = false)
-    private String typeLieu;
+    private String presence;
 
     @Column(nullable = false)
-    private int adresseLieu;
+    private String materiel;
+
+    @ManyToOne
+    @JoinColumn(name="competence_id", nullable=false)
+    private Competence competence;
 
     @OneToOne
     @JoinColumn(name="service_id", nullable=false)

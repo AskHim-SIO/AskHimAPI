@@ -1,8 +1,8 @@
 package fr.askhim.api.model;
 
 
-import fr.askhim.api.models.entity.Lieu;
-import fr.askhim.api.models.entity.Type;
+import fr.askhim.api.entity.Lieu;
+import fr.askhim.api.entity.Type;
 import lombok.Getter;
 import lombok.Setter;
 

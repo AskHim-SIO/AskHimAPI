@@ -1,6 +1,5 @@
-package fr.askhim.api.models.entity.typeService.Transport;
+package fr.askhim.api.entity.typeService.Formation;
 
-import fr.askhim.api.models.entity.typeService.Transport.Transport;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,8 +9,8 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name="Motif")
-public class Motif{
+@Table(name="Competence")
+public class Competence {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -21,6 +20,6 @@ public class Motif{
     private String libelle;
 
     // un motif pour des transports
-    @OneToMany(mappedBy = "motif")
-    Set<Transport> transport;
+    @OneToMany(mappedBy = "competence")
+    Set<Formation> formations;
 }

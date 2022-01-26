@@ -1,6 +1,6 @@
 package fr.askhim.api.services;
 
-import fr.askhim.api.models.entity.typeService.Loisir.Jeu;
+import fr.askhim.api.entity.typeService.Loisir.Jeu;
 import fr.askhim.api.repository.JeuRepository;
 import org.springframework.stereotype.Service;
 

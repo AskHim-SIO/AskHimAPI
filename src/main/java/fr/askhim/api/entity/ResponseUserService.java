@@ -1,11 +1,9 @@
-package fr.askhim.api.models.entity;
+package fr.askhim.api.entity;
 
-import fr.askhim.api.models.entity.key.ResponseUserServiceKey;
-import lombok.*;
+import fr.askhim.api.entity.key.ResponseUserServiceKey;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.Set;
 
 
 @Entity

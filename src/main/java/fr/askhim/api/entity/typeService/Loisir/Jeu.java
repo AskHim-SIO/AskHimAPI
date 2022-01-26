@@ -1,6 +1,5 @@
-package fr.askhim.api.models.entity.typeService.Formation;
+package fr.askhim.api.entity.typeService.Loisir;
 
-import fr.askhim.api.models.entity.typeService.Formation.Formation;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,8 +9,8 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name="Competence")
-public class Competence {
+@Table(name="Jeu")
+public class Jeu {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -21,6 +20,6 @@ public class Competence {
     private String libelle;
 
     // un motif pour des transports
-    @OneToMany(mappedBy = "competence")
-    Set<Formation> formations;
+    @OneToMany(mappedBy = "jeu")
+    Set<Loisir> loisirs;
 }

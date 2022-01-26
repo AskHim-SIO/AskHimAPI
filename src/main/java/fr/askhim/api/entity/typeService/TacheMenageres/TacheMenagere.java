@@ -1,13 +1,11 @@
-package fr.askhim.api.models.entity.typeService.TacheMenageres;
+package fr.askhim.api.entity.typeService.TacheMenageres;
 
-import fr.askhim.api.models.entity.Service;
-import fr.askhim.api.models.entity.User;
+import fr.askhim.api.entity.Service;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter

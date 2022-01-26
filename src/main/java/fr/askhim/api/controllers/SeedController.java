@@ -1,19 +1,19 @@
 package fr.askhim.api.controllers;
 
 import com.github.javafaker.Faker;
-import fr.askhim.api.models.entity.Lieu;
-import fr.askhim.api.models.entity.Service;
-import fr.askhim.api.models.entity.Type;
-import fr.askhim.api.models.entity.User;
-import fr.askhim.api.models.entity.typeService.Course;
-import fr.askhim.api.models.entity.typeService.Formation.Competence;
-import fr.askhim.api.models.entity.typeService.Formation.Formation;
-import fr.askhim.api.models.entity.typeService.Loisir.Jeu;
-import fr.askhim.api.models.entity.typeService.Loisir.Loisir;
-import fr.askhim.api.models.entity.typeService.TacheMenageres.Materiel;
-import fr.askhim.api.models.entity.typeService.TacheMenageres.TacheMenagere;
-import fr.askhim.api.models.entity.typeService.Transport.Motif;
-import fr.askhim.api.models.entity.typeService.Transport.Transport;
+import fr.askhim.api.entity.Lieu;
+import fr.askhim.api.entity.Service;
+import fr.askhim.api.entity.Type;
+import fr.askhim.api.entity.User;
+import fr.askhim.api.entity.typeService.Course;
+import fr.askhim.api.entity.typeService.Formation.Competence;
+import fr.askhim.api.entity.typeService.Formation.Formation;
+import fr.askhim.api.entity.typeService.Loisir.Jeu;
+import fr.askhim.api.entity.typeService.Loisir.Loisir;
+import fr.askhim.api.entity.typeService.TacheMenageres.Materiel;
+import fr.askhim.api.entity.typeService.TacheMenageres.TacheMenagere;
+import fr.askhim.api.entity.typeService.Transport.Motif;
+import fr.askhim.api.entity.typeService.Transport.Transport;
 import fr.askhim.api.repository.*;
 import fr.askhim.api.services.*;
 import fr.askhim.api.type.TypeEnum;
@@ -133,9 +133,9 @@ public class SeedController {
     public String seedCourses(int nbSeed) {
         if (checkNbSeeds(nbSeed)) {
             for (int i = 0; i < nbSeed; i++) {
-                Service newService = buildServiceSeeded(TypeEnum.COURSE);
+                Service newServiceEntity = buildServiceSeeded(TypeEnum.COURSE);
                 Course courseFaker = new Course();
-                courseFaker.setService(newService);
+                courseFaker.setService(newServiceEntity);
                 courseFaker.setAccompagnement(faker.beer().name()); // TODO
                 courseFaker.setTypeLieu(faker.beer().name()); // TODO
                 courseFaker.setAdresseLieu(faker.random().nextInt(1, 50)); // TODO
@@ -151,9 +151,9 @@ public class SeedController {
     public String seedFormations(int nbSeed){
         if (checkNbSeeds(nbSeed)){
             for (int i = 0; i < nbSeed; i++){
-                Service newService = buildServiceSeeded(TypeEnum.FORMATION);
+                Service newServiceEntity = buildServiceSeeded(TypeEnum.FORMATION);
                 Formation formationFaker = new Formation();
-                formationFaker.setService(newService);
+                formationFaker.setService(newServiceEntity);
                 formationFaker.setNbHeure(faker.random().nextInt(2, 16));
                 formationFaker.setPresence(faker.beer().name()); // TODO
                 formationFaker.setMateriel(faker.beer().name()); // TODO
@@ -202,9 +202,9 @@ public class SeedController {
     public String seedLoisirs(int nbSeed){
         if (checkNbSeeds(nbSeed)){
             for (int i = 0; i < nbSeed; i++){
-                Service newService = buildServiceSeeded(TypeEnum.LOISIR);
+                Service newServiceEntity = buildServiceSeeded(TypeEnum.LOISIR);
                 Loisir loisirFaker = new Loisir();
-                loisirFaker.setService(newService);
+                loisirFaker.setService(newServiceEntity);
                 loisirFaker.setNbPersonne(faker.random().nextInt(2, 20));
                 loisirFaker.setAnimal(faker.beer().name()); // TODO
                 loisirFaker.setJeu(jeuService.getRandomJeu());
@@ -252,9 +252,9 @@ public class SeedController {
     public String seedtachesMenagere(int nbSeed){
         if (checkNbSeeds(nbSeed)){
             for (int i = 0; i < nbSeed; i++){
-                Service newService = buildServiceSeeded(TypeEnum.TACHE_MENAGERE);
+                Service newServiceEntity = buildServiceSeeded(TypeEnum.TACHE_MENAGERE);
                 TacheMenagere tacheMenagereFaker = new TacheMenagere();
-                tacheMenagereFaker.setService(newService);
+                tacheMenagereFaker.setService(newServiceEntity);
                 tacheMenagereFaker.setNbHeure(faker.random().nextInt(1,6));
                 tacheMenagereFaker.setLibelle(faker.beer().name()); // TODO
                 List<Materiel> materiels = new ArrayList<>();
@@ -272,9 +272,9 @@ public class SeedController {
     public String seedTransports(int nbSeed) {
         if (checkNbSeeds(nbSeed)) {
             for (int i = 0; i < nbSeed; i++) {
-                Service newService = buildServiceSeeded(TypeEnum.TRANSPORT);
+                Service newServiceEntity = buildServiceSeeded(TypeEnum.TRANSPORT);
                 Transport transportFaker = new Transport();
-                transportFaker.setService(newService);
+                transportFaker.setService(newServiceEntity);
                 transportFaker.setPointDepart(faker.address().fullAddress());
                 transportFaker.setPointArriver(faker.address().fullAddress());
                 transportFaker.setNbPlaceDispo(faker.random().nextInt(1, 4));
@@ -333,15 +333,15 @@ public class SeedController {
     }
 
     private Service buildServiceSeeded(TypeEnum typeEnum){
-        Service serviceFaker = new Service();
-        serviceFaker.setName(faker.beer().name()); // TODO
-        serviceFaker.setDateStart(faker.date().birthday(-100, 0));
-        serviceFaker.setDateEnd(faker.date().birthday(0, 100));
-        serviceFaker.setPrice((long) faker.number().numberBetween(1, 2000));
-        serviceFaker.setPostDate(new Date());
-        serviceFaker.setUser(userService.getRandomUser());
-        serviceFaker.setType(typeRepository.getTypeByLibelle(typeEnum.getLibelle()));
-        serviceFaker.setLieu(lieuService.getRandomLieu());
-        return serviceRepository.save(serviceFaker);
+        Service serviceEntityFaker = new Service();
+        serviceEntityFaker.setName(faker.beer().name()); // TODO
+        serviceEntityFaker.setDateStart(faker.date().birthday(-100, 0));
+        serviceEntityFaker.setDateEnd(faker.date().birthday(0, 100));
+        serviceEntityFaker.setPrice((long) faker.number().numberBetween(1, 2000));
+        serviceEntityFaker.setPostDate(new Date());
+        serviceEntityFaker.setUser(userService.getRandomUser());
+        serviceEntityFaker.setType(typeRepository.getTypeByLibelle(typeEnum.getLibelle()));
+        serviceEntityFaker.setLieu(lieuService.getRandomLieu());
+        return serviceRepository.save(serviceEntityFaker);
     }
 }
