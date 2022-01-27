@@ -62,6 +62,21 @@ public class ServiceController {
         return serviceModels;
     }
 
+    /*@GetMapping("/get-service/{id}")
+    public Object getService(@PathVariable Long id){
+        if(!serviceService.serviceExist(id)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le service spécifié n'existe pas"));
+        }
+        Service service = serviceService.getServiceById(id);
+        TypeEnum serviceType = serviceService.getType(service);
+        TransportModel modelRtn = new TransportModel();
+        switch(serviceType){
+            case TRANSPORT:
+                //modelRtn
+                break;
+        }
+    }*/
+
     @GetMapping("/get-recent-services")
     public List<ServiceMinModel> getRecentServices() {
         //todo tester l'ordre recent
@@ -82,7 +97,7 @@ public class ServiceController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TYPE", "Le type spécifié est introuvable"));
             }
 
-            List<Service> services = serviceService.findByType(TypeEnum.idToTypeEnum(typeId));
+            List<Service> services = serviceService.getServicesByType(TypeEnum.idToTypeEnum(typeId));
             List<ServiceMinModel> servicesMinModel = new ArrayList<>();
 
             for(Service service : services){
