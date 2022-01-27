@@ -92,11 +92,11 @@ public class ServiceController {
         Token tokenRecp = tokenService.getTokenById(token);
         User userRecp = tokenRecp.getUser();
         List<Service> services = serviceService.getServicesByUser(userRecp);
-        List<ServiceModel> servicesModel = new ArrayList<>();
+        List<ServiceMinModel> servicesMinModel = new ArrayList<>();
         for(Service service : services){
-            servicesModel.add(serviceMapToDTO(service));
+            servicesMinModel.add(serviceMinMapToDTO(service));
         }
-        return servicesModel;
+        return servicesMinModel;
     }
 
     @GetMapping("/get-services-from-type/{typeId}")

@@ -335,6 +335,7 @@ public class SeedController {
     private Service buildServiceSeeded(TypeEnum typeEnum){
         Service serviceEntityFaker = new Service();
         serviceEntityFaker.setName(faker.beer().name()); // TODO
+        serviceEntityFaker.setDescription(faker.beer().name()); // TODO
         serviceEntityFaker.setDateStart(faker.date().birthday(-100, 0));
         serviceEntityFaker.setDateEnd(faker.date().birthday(0, 100));
         serviceEntityFaker.setPrice((long) faker.number().numberBetween(1, 2000));

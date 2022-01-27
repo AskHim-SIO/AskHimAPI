@@ -17,6 +17,7 @@ public class ServiceMinModel {
 
     private Long id;
     private String name;
+    private String description;
     private Integer price;
     private Date postDate;
     private Lieu lieu;

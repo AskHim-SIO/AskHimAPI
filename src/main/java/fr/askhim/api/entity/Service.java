@@ -24,6 +24,9 @@ public class Service {
     private String name;
 
     @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false)
     @Temporal(TemporalType.DATE)
     private Date dateStart;
 

@@ -17,6 +17,7 @@ public class ServiceModel {
 
     private Long id;
     private String name;
+    private String description;
     private Date dateStart;
     private Date dateEnd;
     private Integer price;

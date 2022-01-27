@@ -49,10 +49,10 @@ public class UserController {
 
 
 
-    @GetMapping("/get-users")
+    /*@GetMapping("/get-users")
     public List<User> getUsers() {
         return userRepository.findAll();
-    }
+    }*/
 
     @GetMapping("/get-user/{token}")
     public Object getUserProfile(@PathVariable String token) {
