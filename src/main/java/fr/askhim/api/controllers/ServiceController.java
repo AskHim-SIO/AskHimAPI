@@ -93,7 +93,7 @@ public class ServiceController {
     }
 
 
-    @GetMapping("/get-transports")
+    /*@GetMapping("/get-transports")
     public List<TransportModel> getTransportsServices() {
 
         //transport
@@ -171,7 +171,7 @@ public class ServiceController {
         });
 
         return tacheMenagereModels;
-    }
+    }*/
 
 
     // MAPPING

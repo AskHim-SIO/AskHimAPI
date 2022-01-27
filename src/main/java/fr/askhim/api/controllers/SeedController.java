@@ -56,6 +56,9 @@ public class SeedController {
     private MotifRepository motifRepository;
 
     @Autowired
+    private PhotoRepository photoRepository;
+
+    @Autowired
     private ServiceRepository serviceRepository;
 
     @Autowired
@@ -339,7 +342,6 @@ public class SeedController {
         serviceEntityFaker.setUser(userService.getRandomUser());
         serviceEntityFaker.setType(typeRepository.getTypeByLibelle(typeEnum.getLibelle()));
         serviceEntityFaker.setLieu(lieuService.getRandomLieu());
-        List<Photo> photos = new ArrayList<>();
         Photo photo = new Photo();
         switch(typeEnum){
             case TRANSPORT:
@@ -362,7 +364,9 @@ public class SeedController {
                 photo.setLibelle("http://cdn.askhim.ctrempe.fr/tacheMenagere.jpg");
                 break;
         }
-        // enregistrer meta photos en base
-        return serviceRepository.save(serviceEntityFaker);
+        Service newService = serviceRepository.save(serviceEntityFaker);
+        photo.setService(newService);
+        photoRepository.save(photo);
+        return newService;
     }
 }
