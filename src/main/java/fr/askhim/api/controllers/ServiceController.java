@@ -1,8 +1,11 @@
 package fr.askhim.api.controllers;
 
+import fr.askhim.api.entity.Token;
+import fr.askhim.api.entity.User;
 import fr.askhim.api.model.Service.CourseModel;
 import fr.askhim.api.model.Service.FormationModel.FormationModel;
 import fr.askhim.api.model.Service.LoisirModel.LoisirModel;
+import fr.askhim.api.model.Service.ServiceModel;
 import fr.askhim.api.model.Service.TacheMenagereModel.TacheMenagereModel;
 import fr.askhim.api.model.Service.TransportModel.TransportModel;
 import fr.askhim.api.model.ServiceMinModel;
@@ -12,6 +15,7 @@ import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.repository.ServiceRepository;
 import fr.askhim.api.repository.TypeRepository;
 import fr.askhim.api.services.ServiceService;
+import fr.askhim.api.services.TokenService;
 import fr.askhim.api.services.TypeService;
 import fr.askhim.api.type.TypeEnum;
 import org.modelmapper.ModelMapper;
@@ -25,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static java.util.Collections.shuffle;
 
@@ -39,12 +44,14 @@ public class ServiceController {
     private TypeRepository typeRepository;
 
     private final ServiceService serviceService;
+    private final TokenService tokenService;
     private final TypeService typeService;
 
     private ModelMapper mapper = new ModelMapper();
 
-    public ServiceController(ServiceService serviceService, TypeService typeService){
+    public ServiceController(ServiceService serviceService, TokenService tokenService, TypeService typeService){
         this.serviceService = serviceService;
+        this.tokenService = tokenService;
         this.typeService = typeService;
     }
 
@@ -54,7 +61,7 @@ public class ServiceController {
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
         services.forEach(service -> {
-            serviceModels.add(serviceMapToDTO(service));
+            serviceModels.add(serviceMinMapToDTO(service));
         });
 
         //todo tester le shuffle
@@ -77,17 +84,19 @@ public class ServiceController {
         }
     }*/
 
-    @GetMapping("/get-recent-services")
-    public List<ServiceMinModel> getRecentServices() {
-        //todo tester l'ordre recent
-        List<Service> serviceEntities = serviceRepository.findTop20ByOrderByPostDateDesc();
-        List<ServiceMinModel> serviceModels = new ArrayList<>();
-
-        serviceEntities.forEach(service -> {
-            serviceModels.add(serviceMapToDTO(service));
-        });
-
-        return serviceModels;
+    @GetMapping("/get-services-from-user/{token}")
+    public Object getServicesFromUser(@PathVariable UUID token){
+        if(!tokenService.tokenExist(token)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
+        }
+        Token tokenRecp = tokenService.getTokenById(token);
+        User userRecp = tokenRecp.getUser();
+        List<Service> services = serviceService.getServicesByUser(userRecp);
+        List<ServiceModel> servicesModel = new ArrayList<>();
+        for(Service service : services){
+            servicesModel.add(serviceMapToDTO(service));
+        }
+        return servicesModel;
     }
 
     @GetMapping("/get-services-from-type/{typeId}")
@@ -101,10 +110,23 @@ public class ServiceController {
             List<ServiceMinModel> servicesMinModel = new ArrayList<>();
 
             for(Service service : services){
-                servicesMinModel.add(serviceMapToDTO(service));
+                servicesMinModel.add(serviceMinMapToDTO(service));
             }
 
             return servicesMinModel;
+    }
+
+    @GetMapping("/get-recent-services")
+    public List<ServiceMinModel> getRecentServices() {
+        //todo tester l'ordre recent
+        List<Service> serviceEntities = serviceRepository.findTop20ByOrderByPostDateDesc();
+        List<ServiceMinModel> serviceModels = new ArrayList<>();
+
+        serviceEntities.forEach(service -> {
+            serviceModels.add(serviceMinMapToDTO(service));
+        });
+
+        return serviceModels;
     }
 
 
@@ -190,8 +212,13 @@ public class ServiceController {
 
 
     // MAPPING
-    private ServiceMinModel serviceMapToDTO(Service service) {
+    private ServiceMinModel serviceMinMapToDTO(Service service) {
         ServiceMinModel serviceModel = mapper.map(service, ServiceMinModel.class);
+        return serviceModel;
+    }
+
+    private ServiceModel serviceMapToDTO(Service service) {
+        ServiceModel serviceModel = mapper.map(service, ServiceModel.class);
         return serviceModel;
     }
 

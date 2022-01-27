@@ -1,6 +1,7 @@
 package fr.askhim.api.services;
 
 import fr.askhim.api.entity.Service;
+import fr.askhim.api.entity.User;
 import fr.askhim.api.repository.ServiceRepository;
 import fr.askhim.api.repository.TransportRepository;
 import fr.askhim.api.type.TypeEnum;
@@ -31,6 +32,10 @@ public class ServiceService {
 
     public List<Service> getServicesByType(TypeEnum typeEnum){
         return serviceRepository.findByType(typeService.getTypeByLibelle(typeEnum.getLibelle()));
+    }
+
+    public List<Service> getServicesByUser(User user){
+        return serviceRepository.findByUser(user);
     }
 
     public boolean serviceExist(Long id){
