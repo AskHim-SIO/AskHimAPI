@@ -35,7 +35,7 @@ public class Service {
     private Date dateEnd;
 
     @Column(columnDefinition = "boolean default 0")
-    private boolean state;
+    private Boolean state;
 
     @Column(nullable = false)
     private Long price;

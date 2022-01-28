@@ -20,7 +20,8 @@ public class ServiceModel {
     private String description;
     private Date dateStart;
     private Date dateEnd;
-    private Integer price;
+    private Boolean state;
+    private Long price;
     private Date postDate;
     private LieuModel lieu;
     private List<PhotoModel> photos = new ArrayList<>();

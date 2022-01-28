@@ -22,6 +22,9 @@ public class Type {
 	@Column(nullable = false)
 	private String libelle;
 
+	@Column(nullable = false)
+	private String defaultPhoto;
+
 	@ManyToMany(mappedBy = "types")
 	Set<User> prefer;
 

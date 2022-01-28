@@ -78,7 +78,7 @@ public class AuthController {
     @GetMapping("token-valid")
     public ResponseEntity tokenValid(@RequestParam String request) {
         if (request == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, "BAD_REQUEST", "Des arguments de la requete sont manquants"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, "MISSING_PARAMETER", "Des arguments de la requête sont manquants"));
         }
 
         Optional<Token> tokenResult = tokenRepository.findById(request);

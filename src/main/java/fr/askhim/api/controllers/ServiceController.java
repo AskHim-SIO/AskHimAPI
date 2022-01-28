@@ -1,7 +1,7 @@
 package fr.askhim.api.controllers;
 
-import fr.askhim.api.entity.Token;
-import fr.askhim.api.entity.User;
+import fr.askhim.api.entity.*;
+import fr.askhim.api.model.PhotoModel;
 import fr.askhim.api.model.Service.CourseModel;
 import fr.askhim.api.model.Service.FormationModel.FormationModel;
 import fr.askhim.api.model.Service.LoisirModel.LoisirModel;
@@ -9,8 +9,7 @@ import fr.askhim.api.model.Service.ServiceModel;
 import fr.askhim.api.model.Service.TacheMenagereModel.TacheMenagereModel;
 import fr.askhim.api.model.Service.TransportModel.TransportModel;
 import fr.askhim.api.model.ServiceMinModel;
-import fr.askhim.api.entity.Service;
-import fr.askhim.api.entity.Type;
+import fr.askhim.api.model.UserModel;
 import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.repository.ServiceRepository;
 import fr.askhim.api.repository.TypeRepository;
@@ -78,10 +77,7 @@ public class ServiceController {
         TypeEnum serviceType = serviceService.getType(service);
         switch(serviceType){
             case TRANSPORT:
-                TransportModel transportModel = new TransportModel();
-                transportModel.setId(service.getId());
-                transportModel.setName(service.getName());
-                return null;
+                return transportMapToDTO(service);
 
             case COURSE:
                 return null;
@@ -229,9 +225,35 @@ public class ServiceController {
         return serviceModel;
     }
 
+
+
+
     private TransportModel transportMapToDTO(Service service) {
-        TransportModel serviceModel = mapper.map(service, TransportModel.class);
-        return serviceModel;
+        //TransportModel serviceModel = mapper.map(service, TransportModel.class);
+        TransportModel transportModel = new TransportModel();
+        transportModel.setId(service.getId());
+        transportModel.setName(service.getName());
+        transportModel.setDescription(service.getDescription());
+        transportModel.setDateStart(service.getDateStart());
+        transportModel.setDateEnd(service.getDateEnd());
+        transportModel.setState(service.getState());
+        transportModel.setPrice(service.getPrice());
+        transportModel.setPostDate(service.getPostDate());
+        List<PhotoModel> photosModel = new ArrayList<>();
+        for(Photo photo : service.getPhotos()){
+            PhotoModel photoModel = new PhotoModel();
+            photoModel.setId(photo.getId());
+            photoModel.setLibelle(photo.getLibelle());
+            photosModel.add(photoModel);
+        }
+        transportModel.setPhotos(photosModel);
+        UserModel userModel = new UserModel();
+        userModel.setId(service.getUser().getId());
+        userModel.setName(service.getUser().getName());
+        userModel.setFirstname(service.getUser().getFirstname());
+        userModel.setProfilPicture(service.getUser().getProfilPicture());
+
+        return transportModel;
     }
 
     private FormationModel formationMapToDTO(Service service) {
