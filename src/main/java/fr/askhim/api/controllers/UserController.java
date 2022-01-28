@@ -59,7 +59,7 @@ public class UserController {
         Optional<Token> tokenRes = tokenRepository.findById(token);
         if (!tokenRes.isPresent()) {
             // 404
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "USER_NOT_FOUND", "L'utilisateur n'a pas été trouvé"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
         }
 
         Token userTok = tokenRes.get();
