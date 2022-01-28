@@ -3,6 +3,7 @@ package fr.askhim.api.model.Service;
 
 import fr.askhim.api.model.LieuModel;
 import fr.askhim.api.model.PhotoModel;
+import fr.askhim.api.model.UserModel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,4 +26,5 @@ public class ServiceModel {
     private Date postDate;
     private LieuModel lieu;
     private List<PhotoModel> photos = new ArrayList<>();
+    private UserModel user;
 }

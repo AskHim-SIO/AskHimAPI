@@ -1,12 +1,15 @@
 package fr.askhim.api.controllers;
 
 import fr.askhim.api.entity.*;
+import fr.askhim.api.entity.typeService.Transport.Transport;
+import fr.askhim.api.model.LieuModel;
 import fr.askhim.api.model.PhotoModel;
 import fr.askhim.api.model.Service.CourseModel;
 import fr.askhim.api.model.Service.FormationModel.FormationModel;
 import fr.askhim.api.model.Service.LoisirModel.LoisirModel;
 import fr.askhim.api.model.Service.ServiceModel;
 import fr.askhim.api.model.Service.TacheMenagereModel.TacheMenagereModel;
+import fr.askhim.api.model.Service.TransportModel.MotifModel;
 import fr.askhim.api.model.Service.TransportModel.TransportModel;
 import fr.askhim.api.model.ServiceMinModel;
 import fr.askhim.api.model.UserModel;
@@ -15,6 +18,7 @@ import fr.askhim.api.repository.ServiceRepository;
 import fr.askhim.api.repository.TypeRepository;
 import fr.askhim.api.services.ServiceService;
 import fr.askhim.api.services.TokenService;
+import fr.askhim.api.services.TransportService;
 import fr.askhim.api.services.TypeService;
 import fr.askhim.api.type.TypeEnum;
 import org.modelmapper.ModelMapper;
@@ -44,13 +48,15 @@ public class ServiceController {
 
     private final ServiceService serviceService;
     private final TokenService tokenService;
+    private final TransportService transportService;
     private final TypeService typeService;
 
     private ModelMapper mapper = new ModelMapper();
 
-    public ServiceController(ServiceService serviceService, TokenService tokenService, TypeService typeService){
+    public ServiceController(ServiceService serviceService, TokenService tokenService, TransportService transportService, TypeService typeService){
         this.serviceService = serviceService;
         this.tokenService = tokenService;
+        this.transportService = transportService;
         this.typeService = typeService;
     }
 
@@ -229,31 +235,16 @@ public class ServiceController {
 
 
     private TransportModel transportMapToDTO(Service service) {
-        //TransportModel serviceModel = mapper.map(service, TransportModel.class);
-        TransportModel transportModel = new TransportModel();
-        transportModel.setId(service.getId());
-        transportModel.setName(service.getName());
-        transportModel.setDescription(service.getDescription());
-        transportModel.setDateStart(service.getDateStart());
-        transportModel.setDateEnd(service.getDateEnd());
-        transportModel.setState(service.getState());
-        transportModel.setPrice(service.getPrice());
-        transportModel.setPostDate(service.getPostDate());
-        List<PhotoModel> photosModel = new ArrayList<>();
-        for(Photo photo : service.getPhotos()){
-            PhotoModel photoModel = new PhotoModel();
-            photoModel.setId(photo.getId());
-            photoModel.setLibelle(photo.getLibelle());
-            photosModel.add(photoModel);
-        }
-        transportModel.setPhotos(photosModel);
-        UserModel userModel = new UserModel();
-        userModel.setId(service.getUser().getId());
-        userModel.setName(service.getUser().getName());
-        userModel.setFirstname(service.getUser().getFirstname());
-        userModel.setProfilPicture(service.getUser().getProfilPicture());
-
-        return transportModel;
+        TransportModel serviceModel = mapper.map(service, TransportModel.class);
+        Transport transport = transportService.getTransportByService(service);
+        serviceModel.setPointDepart(transport.getPointDepart());
+        serviceModel.setPointArriver(transport.getPointArriver());
+        serviceModel.setNbPlaceDispo(transport.getNbPlaceDispo());
+        serviceModel.setVehiculePerso(transport.getVehiculePerso());
+        MotifModel motifModel = mapper.map(transport.getMotif(), MotifModel.class);
+        serviceModel.setMotif(motifModel);
+        System.out.println(motifModel);
+        return serviceModel;
     }
 
     private FormationModel formationMapToDTO(Service service) {
