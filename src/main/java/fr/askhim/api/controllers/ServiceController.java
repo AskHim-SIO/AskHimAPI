@@ -69,20 +69,27 @@ public class ServiceController {
         return serviceModels;
     }
 
-    /*@GetMapping("/get-service/{id}")
+    @GetMapping("/get-service/{id}")
     public Object getService(@PathVariable Long id){
         if(!serviceService.serviceExist(id)){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le service spécifié n'existe pas"));
         }
         Service service = serviceService.getServiceById(id);
         TypeEnum serviceType = serviceService.getType(service);
-        TransportModel modelRtn = new TransportModel();
         switch(serviceType){
             case TRANSPORT:
-                //modelRtn
-                break;
+                TransportModel transportModel = new TransportModel();
+                transportModel.setId(service.getId());
+                transportModel.setName(service.getName());
+                return null;
+
+            case COURSE:
+                return null;
+
+            default:
+                return null;
         }
-    }*/
+    }
 
     @GetMapping("/get-services-from-user/{token}")
     public Object getServicesFromUser(@PathVariable UUID token){

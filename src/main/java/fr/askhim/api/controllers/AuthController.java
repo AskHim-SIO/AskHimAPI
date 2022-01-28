@@ -3,11 +3,13 @@ package fr.askhim.api.controllers;
 import fr.askhim.api.model.AuthModel.LoginModel;
 import fr.askhim.api.entity.Token;
 import fr.askhim.api.entity.User;
+import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.repository.TokenRepository;
 import fr.askhim.api.repository.UserRepository;
 import fr.askhim.api.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,15 +76,15 @@ public class AuthController {
 
 
     @GetMapping("token-valid")
-    public Boolean tokenValid(@RequestParam String request) {
+    public ResponseEntity tokenValid(@RequestParam String request) {
         if (request == null) {
-            return false;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, "BAD_REQUEST", "Des arguments de la requete sont manquants"));
         }
 
         Optional<Token> tokenResult = tokenRepository.findById(request);
 
         if (tokenResult.isPresent() == false) {
-            return false;
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "TOKEN_NOT_FOUND", "Le token spécifié n'existe pas"));
         }
 
         Token token = tokenResult.get();
@@ -90,9 +92,10 @@ public class AuthController {
 
         if (dateP.isBefore(LocalDate.now())) {
             tokenRepository.delete(token);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "TOKEN_NOT_FOUND", "Le token spécifié n'existe pas"));
         }
 
-        return true;
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, "TOKEN_EXIST", "Le token spécifié existe"));
 
     }
 

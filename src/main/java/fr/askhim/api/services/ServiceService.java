@@ -46,9 +46,5 @@ public class ServiceService {
         return TypeEnum.idToTypeEnum(service.getType().getId());
     }
 
-    /*public Object getInstanceofService(Service service){
-
-    }*/
-
 
 }
