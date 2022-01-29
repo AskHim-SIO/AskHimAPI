@@ -1,13 +1,21 @@
 package fr.askhim.api.controllers;
 
 import fr.askhim.api.entity.*;
+import fr.askhim.api.entity.typeService.Course;
+import fr.askhim.api.entity.typeService.Formation.Formation;
+import fr.askhim.api.entity.typeService.Loisir.Loisir;
+import fr.askhim.api.entity.typeService.TacheMenageres.Materiel;
+import fr.askhim.api.entity.typeService.TacheMenageres.TacheMenagere;
 import fr.askhim.api.entity.typeService.Transport.Transport;
 import fr.askhim.api.model.LieuModel;
 import fr.askhim.api.model.PhotoModel;
 import fr.askhim.api.model.Service.CourseModel;
+import fr.askhim.api.model.Service.FormationModel.CompetenceModel;
 import fr.askhim.api.model.Service.FormationModel.FormationModel;
+import fr.askhim.api.model.Service.LoisirModel.JeuModel;
 import fr.askhim.api.model.Service.LoisirModel.LoisirModel;
 import fr.askhim.api.model.Service.ServiceModel;
+import fr.askhim.api.model.Service.TacheMenagereModel.MaterielModel;
 import fr.askhim.api.model.Service.TacheMenagereModel.TacheMenagereModel;
 import fr.askhim.api.model.Service.TransportModel.MotifModel;
 import fr.askhim.api.model.Service.TransportModel.TransportModel;
@@ -16,10 +24,7 @@ import fr.askhim.api.model.UserModel;
 import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.repository.ServiceRepository;
 import fr.askhim.api.repository.TypeRepository;
-import fr.askhim.api.services.ServiceService;
-import fr.askhim.api.services.TokenService;
-import fr.askhim.api.services.TransportService;
-import fr.askhim.api.services.TypeService;
+import fr.askhim.api.services.*;
 import fr.askhim.api.type.TypeEnum;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,15 +51,23 @@ public class ServiceController {
     @Autowired
     private TypeRepository typeRepository;
 
+    private final CourseService courseService;
+    private final FormationService formationService;
+    private final LoisirService loisirService;
     private final ServiceService serviceService;
+    private final TacheMenagereService tacheMenagereService;
     private final TokenService tokenService;
     private final TransportService transportService;
     private final TypeService typeService;
 
     private ModelMapper mapper = new ModelMapper();
 
-    public ServiceController(ServiceService serviceService, TokenService tokenService, TransportService transportService, TypeService typeService){
+    public ServiceController(CourseService courseService, FormationService formationService, LoisirService loisirService, ServiceService serviceService, TacheMenagereService tacheMenagereService, TokenService tokenService, TransportService transportService, TypeService typeService){
+        this.courseService = courseService;
+        this.formationService = formationService;
+        this.loisirService = loisirService;
         this.serviceService = serviceService;
+        this.tacheMenagereService = tacheMenagereService;
         this.tokenService = tokenService;
         this.transportService = transportService;
         this.typeService = typeService;
@@ -86,7 +99,16 @@ public class ServiceController {
                 return transportMapToDTO(service);
 
             case COURSE:
-                return null;
+                return courseMapToDTO(service);
+
+            case FORMATION:
+                return formationMapToDTO(service);
+
+            case LOISIR:
+                return loisirMapToDTO(service);
+
+            case TACHE_MENAGERE:
+                return tacheMenagereMapToDTO(service);
 
             default:
                 return null;
@@ -243,27 +265,49 @@ public class ServiceController {
         serviceModel.setVehiculePerso(transport.getVehiculePerso());
         MotifModel motifModel = mapper.map(transport.getMotif(), MotifModel.class);
         serviceModel.setMotif(motifModel);
-        System.out.println(motifModel);
+        return serviceModel;
+    }
+
+    private CourseModel courseMapToDTO(Service service) {
+        CourseModel serviceModel = mapper.map(service, CourseModel.class);
+        Course course = courseService.getCourseByService(service);
+        serviceModel.setAccompagnement(course.getAccompagnement());
+        serviceModel.setTypeLieu(course.getTypeLieu());
+        serviceModel.setAdresseLieu(course.getAdresseLieu());
         return serviceModel;
     }
 
     private FormationModel formationMapToDTO(Service service) {
         FormationModel serviceModel = mapper.map(service, FormationModel.class);
+        Formation formation = formationService.getFormationByService(service);
+        serviceModel.setNbHeure(formation.getNbHeure());
+        serviceModel.setPresence(formation.getPresence());
+        serviceModel.setMateriel(formation.getMateriel());
+        CompetenceModel competenceModel = mapper.map(formation.getCompetence(), CompetenceModel.class);
+        serviceModel.setCompetence(competenceModel);
         return serviceModel;
     }
 
     private LoisirModel loisirMapToDTO(Service service) {
         LoisirModel serviceModel = mapper.map(service, LoisirModel.class);
+        Loisir loisir = loisirService.getLoisirByService(service);
+        serviceModel.setNbPersonne(loisir.getNbPersonne());
+        serviceModel.setAnimal(loisir.getAnimal());
+        JeuModel jeuModel = mapper.map(loisir.getJeu(), JeuModel.class);
+        serviceModel.setJeu(jeuModel);
         return serviceModel;
     }
 
     private TacheMenagereModel tacheMenagereMapToDTO(Service service) {
         TacheMenagereModel serviceModel = mapper.map(service, TacheMenagereModel.class);
+        TacheMenagere tacheMenagere = tacheMenagereService.getTacheMenagereService(service);
+        serviceModel.setNbHeure(tacheMenagere.getNbHeure());
+        serviceModel.setLibelle(tacheMenagere.getLibelle());
+        List<MaterielModel> materielsModels = new ArrayList<>();
+        for(Materiel materiel : tacheMenagere.getDisposer_de()){
+            materielsModels.add(mapper.map(materiel, MaterielModel.class));
+        }
+        serviceModel.setDisposer_de(materielsModels);
         return serviceModel;
-    }
-
-    private CourseModel courseMapToDTO(Service service) {
-        CourseModel courseModel = mapper.map(service, CourseModel.class);
-        return courseModel;
     }
 }

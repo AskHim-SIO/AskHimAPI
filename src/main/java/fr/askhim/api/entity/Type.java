@@ -25,6 +25,9 @@ public class Type {
 	@Column(nullable = false)
 	private String defaultPhoto;
 
+	@Column(nullable = false)
+	private String defaultPhotoMobile;
+
 	@ManyToMany(mappedBy = "types")
 	Set<User> prefer;
 
