@@ -216,7 +216,7 @@ public class SeedController {
         }
     }
 
-    @GetMapping("/seedmateriels")
+    /*@GetMapping("/seedmateriels")
     public String seedMateriels(int nbSeed){
         if (checkNbSeeds(nbSeed)){
             for (int i = 0; i < nbSeed; i++){
@@ -230,7 +230,7 @@ public class SeedController {
         }else {
             return "[Error] Le nombre doit être supérieur à 0";
         }
-    }
+    }*/
 
     @GetMapping("/seedmotifs")
     public String seedMotifs(int nbSeed) {
@@ -257,10 +257,22 @@ public class SeedController {
                 tacheMenagereFaker.setService(newServiceEntity);
                 tacheMenagereFaker.setNbHeure(faker.random().nextInt(1,6));
                 tacheMenagereFaker.setLibelle(faker.beer().name()); // TODO
-                List<Materiel> materiels = new ArrayList<>();
-                materiels.add(materielService.getRandomMateriel());
-                tacheMenagereFaker.setDisposer_de(materiels);
-                tacheMenagereRepository.save(tacheMenagereFaker);
+                int nbMateriel = (new Random().nextInt(3)) + 1;
+                TacheMenagere tacheMenagereNew = tacheMenagereRepository.save(tacheMenagereFaker);
+                for(int y = 0 ; y < nbMateriel ; y++){
+                    Materiel materielFaker = new Materiel();
+                    materielFaker.setLibelle(faker.beer().name()); // TODO
+                    if(materielService.materielExist(materielFaker.getLibelle())){
+                        Materiel materielRecp = materielService.getMaterielByLibelle(materielFaker.getLibelle());
+                        materielRecp.getTacheMenageres().add(tacheMenagereNew);
+                        materielRepository.save(materielRecp);
+                    }else{
+                        List<TacheMenagere> tachesMenagere = new ArrayList<>();
+                        tachesMenagere.add(tacheMenagereNew);
+                        materielFaker.setTacheMenageres(tachesMenagere);
+                        materielRepository.save(materielFaker);
+                    }
+                }
             }
             return "[OK] Tâches ménagère ajoutés";
         } else {

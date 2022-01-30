@@ -24,5 +24,5 @@ public class Materiel {
             name = "Disposer_de",
             joinColumns = @JoinColumn(name = "materiel_id"),
             inverseJoinColumns = @JoinColumn(name = "tacheMenagere_id"))
-    List<TacheMenagere> tacheMenageres;
+    private List<TacheMenagere> tacheMenageres;
 }
