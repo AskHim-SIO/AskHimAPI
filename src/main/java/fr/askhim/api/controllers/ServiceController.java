@@ -7,6 +7,7 @@ import fr.askhim.api.entity.typeService.Loisir.Loisir;
 import fr.askhim.api.entity.typeService.TacheMenageres.Materiel;
 import fr.askhim.api.entity.typeService.TacheMenageres.TacheMenagere;
 import fr.askhim.api.entity.typeService.Transport.Transport;
+import fr.askhim.api.model.CreateServiceModel.CreateServiceModel;
 import fr.askhim.api.model.LieuModel;
 import fr.askhim.api.model.PhotoModel;
 import fr.askhim.api.model.Service.CourseModel;
@@ -158,6 +159,12 @@ public class ServiceController {
         });
 
         return serviceModels;
+    }
+
+
+    @PostMapping("/create-transport-service")
+    public ResponseEntity createTransportService(@RequestBody CreateServiceModel transportModel){
+        return null;
     }
 
 
