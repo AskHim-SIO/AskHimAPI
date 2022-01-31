@@ -18,6 +18,8 @@ public class ServiceMinModel {
     private Long id;
     private String name;
     private String description;
+    private Date dateStart;
+    private Date dateEnd;
     private Integer price;
     private Date postDate;
     private Lieu lieu;
