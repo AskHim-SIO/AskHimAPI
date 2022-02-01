@@ -341,7 +341,12 @@ public class SeedController {
 
     @GetMapping("/test")
     public String test() {
-        return userService.getRandomUser() + "";
+        long currentTimeInit = System.currentTimeMillis();
+        List<Service> services = serviceRepository.findAll();
+        long currentTimeAfterSQL = System.currentTimeMillis();
+        System.out.println("Recuperation terminee, construction du résultat...");
+        String rtnRes = "Services récupérés : " + services.size() + "services\n \nDurée SQL :\n> En seconde : " + ((currentTimeAfterSQL - currentTimeInit) / 1000 + "s\n> En milliseconde : " + (currentTimeAfterSQL - currentTimeInit) + "ms");
+        return rtnRes + "\n \nDurée d'execution : " + (currentTimeAfterSQL - currentTimeInit) + "ms";
     }
 
     private Service buildServiceSeeded(TypeEnum typeEnum){
