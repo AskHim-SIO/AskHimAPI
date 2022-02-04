@@ -16,7 +16,7 @@ public class CreateServiceModel {
     private Date dateStart;
     private Date dateEnd;
     private Long price;
-    private List<MultipartFile> photos;
-
+    private String userToken;
+    private String lieuStr;
 
 }

@@ -1,6 +1,7 @@
 package fr.askhim.api.services;
 
 import fr.askhim.api.entity.Token;
+import fr.askhim.api.entity.User;
 import fr.askhim.api.repository.TokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,5 +25,9 @@ public class TokenService {
 
     public boolean tokenExist(UUID id){
         return getTokenById(id) != null;
+    }
+
+    public User getUserByToken(UUID id){
+        return tokenRepository.findById(id.toString()).get().getUser();
     }
 }

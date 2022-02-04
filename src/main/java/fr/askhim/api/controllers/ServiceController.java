@@ -8,6 +8,7 @@ import fr.askhim.api.entity.typeService.TacheMenageres.Materiel;
 import fr.askhim.api.entity.typeService.TacheMenageres.TacheMenagere;
 import fr.askhim.api.entity.typeService.Transport.Transport;
 import fr.askhim.api.model.CreateServiceModel.CreateServiceModel;
+import fr.askhim.api.model.CreateServiceModel.CreateTransportModel;
 import fr.askhim.api.model.LieuModel;
 import fr.askhim.api.model.PhotoModel;
 import fr.askhim.api.model.Service.CourseModel;
@@ -23,6 +24,7 @@ import fr.askhim.api.model.Service.TransportModel.TransportModel;
 import fr.askhim.api.model.ServiceMinModel;
 import fr.askhim.api.model.UserModel;
 import fr.askhim.api.payload.ApiResponse;
+import fr.askhim.api.repository.LieuRepository;
 import fr.askhim.api.repository.ServiceRepository;
 import fr.askhim.api.repository.TypeRepository;
 import fr.askhim.api.services.*;
@@ -35,16 +37,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.Instant;
+import java.util.*;
 
 import static java.util.Collections.shuffle;
 
 @RestController
 @RequestMapping("/service")
 public class ServiceController {
+
+    @Autowired
+    private LieuRepository lieuRepository;
 
     @Autowired
     private ServiceRepository serviceRepository;
@@ -54,6 +57,7 @@ public class ServiceController {
 
     private final CourseService courseService;
     private final FormationService formationService;
+    private final LieuService lieuService;
     private final LoisirService loisirService;
     private final ServiceService serviceService;
     private final TacheMenagereService tacheMenagereService;
@@ -63,9 +67,10 @@ public class ServiceController {
 
     private ModelMapper mapper = new ModelMapper();
 
-    public ServiceController(CourseService courseService, FormationService formationService, LoisirService loisirService, ServiceService serviceService, TacheMenagereService tacheMenagereService, TokenService tokenService, TransportService transportService, TypeService typeService){
+    public ServiceController(CourseService courseService, FormationService formationService, LieuService lieuService, LoisirService loisirService, ServiceService serviceService, TacheMenagereService tacheMenagereService, TokenService tokenService, TransportService transportService, TypeService typeService){
         this.courseService = courseService;
         this.formationService = formationService;
+        this.lieuService = lieuService;
         this.loisirService = loisirService;
         this.serviceService = serviceService;
         this.tacheMenagereService = tacheMenagereService;
@@ -163,7 +168,27 @@ public class ServiceController {
 
 
     @PostMapping("/create-transport-service")
-    public ResponseEntity createTransportService(@RequestBody CreateServiceModel transportModel){
+    public ResponseEntity createTransportService(@RequestBody CreateTransportModel transportModel){
+        Service newService = new Service();
+        newService.setName(transportModel.getName());
+        newService.setDescription(transportModel.getDescription());
+        newService.setDateStart(transportModel.getDateStart());
+        newService.setDateEnd(transportModel.getDateEnd());
+        newService.setState(true);
+        newService.setPrice(transportModel.getPrice());
+        newService.setPostDate(new Date());
+        newService.setUser(tokenService.getUserByToken(UUID.fromString(transportModel.getUserToken())));
+        newService.setType(typeService.getTypeByLibelle(TypeEnum.TRANSPORT.getLibelle()));
+        if(lieuService.lieuExist(transportModel.getLieuStr())){
+            newService.setLieu(lieuService.getLieuByVille(transportModel.getLieuStr()));
+        }else{
+            Lieu lieu = new Lieu();
+            lieu.setVille(transportModel.getLieuStr());
+            Lieu lieuN = lieuRepository.save(lieu);
+            newService.setLieu(lieuN);
+        }
+        Service serviceReg = serviceRepository.save(newService);
+
         return null;
     }
 
