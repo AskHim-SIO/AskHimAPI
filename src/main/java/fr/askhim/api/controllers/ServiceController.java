@@ -8,6 +8,7 @@ import fr.askhim.api.entity.typeService.TacheMenageres.Materiel;
 import fr.askhim.api.entity.typeService.TacheMenageres.TacheMenagere;
 import fr.askhim.api.entity.typeService.Transport.Motif;
 import fr.askhim.api.entity.typeService.Transport.Transport;
+import fr.askhim.api.model.CreateServiceModel.CreateCourseModel;
 import fr.askhim.api.model.CreateServiceModel.CreateServiceModel;
 import fr.askhim.api.model.CreateServiceModel.CreateTransportModel;
 import fr.askhim.api.model.LieuModel;
@@ -44,6 +45,9 @@ import static java.util.Collections.shuffle;
 @RestController
 @RequestMapping("/service")
 public class ServiceController {
+
+    @Autowired
+    private CourseRepository courseRepository;
 
     @Autowired
     private LieuRepository lieuRepository;
@@ -210,13 +214,37 @@ public class ServiceController {
         }
         newTransport.setService(serviceReg);
         transportRepository.save(newTransport);
-        // Mettre dans Notion
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "TRANSPORT_SERVICE_SAVED", "Le service TRansport a bien été enregistré !"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "TRANSPORT_SERVICE_CREATED", "Le service Transport a bien été enregistré !"));
     }
 
     @PostMapping("/create-course-service")
-    public ResponseEntity createCourseService(){
-        return null;
+    public ResponseEntity createCourseService(@RequestBody CreateCourseModel courseModel){
+        Service newService = new Service();
+        newService.setName(courseModel.getName());
+        newService.setDescription(courseModel.getDescription());
+        newService.setDateStart(courseModel.getDateStart());
+        newService.setDateEnd(courseModel.getDateEnd());
+        newService.setState(true);
+        newService.setPrice(courseModel.getPrice());
+        newService.setPostDate(new Date());
+        newService.setUser(tokenService.getUserByToken(UUID.fromString(courseModel.getUserToken())));
+        newService.setType(typeService.getTypeByLibelle(TypeEnum.TRANSPORT.getLibelle()));
+        if(lieuService.lieuExist(courseModel.getLieuStr())){
+            newService.setLieu(lieuService.getLieuByVille(courseModel.getLieuStr()));
+        }else{
+            Lieu lieu = new Lieu();
+            lieu.setVille(courseModel.getLieuStr());
+            Lieu lieuN = lieuRepository.save(lieu);
+            newService.setLieu(lieuN);
+        }
+        Service serviceReg = serviceRepository.save(newService);
+        Course newCourse = new Course();
+        newCourse.setAccompagnement(courseModel.getAccompagnement());
+        newCourse.setTypeLieu(courseModel.getTypeLieu());
+        newCourse.setAdresseLieu(courseModel.getAdresseLieu());
+        newCourse.setService(serviceReg);
+        courseRepository.save(newCourse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "COURSE_SERVICE_CREATED", "Le service Course a bien été enregistré !"));
     }
 
 
