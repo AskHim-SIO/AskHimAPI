@@ -214,6 +214,11 @@ public class ServiceController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "TRANSPORT_SERVICE_SAVED", "Le service TRansport a bien été enregistré !"));
     }
 
+    @PostMapping("/create-course-service")
+    public ResponseEntity createCourseService(){
+        return null;
+    }
+
 
     /*@GetMapping("/get-transports")
     public List<TransportModel> getTransportsServices() {
