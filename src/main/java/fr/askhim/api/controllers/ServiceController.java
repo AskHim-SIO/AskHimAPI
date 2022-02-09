@@ -6,6 +6,7 @@ import fr.askhim.api.entity.typeService.Formation.Formation;
 import fr.askhim.api.entity.typeService.Loisir.Loisir;
 import fr.askhim.api.entity.typeService.TacheMenageres.Materiel;
 import fr.askhim.api.entity.typeService.TacheMenageres.TacheMenagere;
+import fr.askhim.api.entity.typeService.Transport.Motif;
 import fr.askhim.api.entity.typeService.Transport.Transport;
 import fr.askhim.api.model.CreateServiceModel.CreateServiceModel;
 import fr.askhim.api.model.CreateServiceModel.CreateTransportModel;
@@ -24,9 +25,7 @@ import fr.askhim.api.model.Service.TransportModel.TransportModel;
 import fr.askhim.api.model.ServiceMinModel;
 import fr.askhim.api.model.UserModel;
 import fr.askhim.api.payload.ApiResponse;
-import fr.askhim.api.repository.LieuRepository;
-import fr.askhim.api.repository.ServiceRepository;
-import fr.askhim.api.repository.TypeRepository;
+import fr.askhim.api.repository.*;
 import fr.askhim.api.services.*;
 import fr.askhim.api.type.TypeEnum;
 import org.modelmapper.ModelMapper;
@@ -50,7 +49,13 @@ public class ServiceController {
     private LieuRepository lieuRepository;
 
     @Autowired
+    private MotifRepository motifRepository;
+
+    @Autowired
     private ServiceRepository serviceRepository;
+
+    @Autowired
+    private TransportRepository transportRepository;
 
     @Autowired
     private TypeRepository typeRepository;
@@ -59,6 +64,7 @@ public class ServiceController {
     private final FormationService formationService;
     private final LieuService lieuService;
     private final LoisirService loisirService;
+    private final MotifService motifService;
     private final ServiceService serviceService;
     private final TacheMenagereService tacheMenagereService;
     private final TokenService tokenService;
@@ -67,11 +73,12 @@ public class ServiceController {
 
     private ModelMapper mapper = new ModelMapper();
 
-    public ServiceController(CourseService courseService, FormationService formationService, LieuService lieuService, LoisirService loisirService, ServiceService serviceService, TacheMenagereService tacheMenagereService, TokenService tokenService, TransportService transportService, TypeService typeService){
+    public ServiceController(CourseService courseService, FormationService formationService, LieuService lieuService, LoisirService loisirService, MotifService motifService, ServiceService serviceService, TacheMenagereService tacheMenagereService, TokenService tokenService, TransportService transportService, TypeService typeService){
         this.courseService = courseService;
         this.formationService = formationService;
         this.lieuService = lieuService;
         this.loisirService = loisirService;
+        this.motifService = motifService;
         this.serviceService = serviceService;
         this.tacheMenagereService = tacheMenagereService;
         this.tokenService = tokenService;
@@ -188,8 +195,23 @@ public class ServiceController {
             newService.setLieu(lieuN);
         }
         Service serviceReg = serviceRepository.save(newService);
-
-        return null;
+        Transport newTransport = new Transport();
+        newTransport.setPointDepart(transportModel.getPointDepart());;
+        newTransport.setPointArriver(transportModel.getPointArriver());
+        newTransport.setNbPlaceDispo(transportModel.getNbPlaceDispo());
+        newTransport.setVehiculePerso(transportModel.getVehiculePerso());
+        if(motifService.motifExist(transportModel.getMotif())){
+            newTransport.setMotif(motifService.getMotifByLibelle(transportModel.getMotif()));
+        }else{
+            Motif motif = new Motif();
+            motif.setLibelle(transportModel.getMotif());
+            Motif motifN = motifRepository.save(motif);
+            newTransport.setMotif(motifN);
+        }
+        newTransport.setService(serviceReg);
+        transportRepository.save(newTransport);
+        // Mettre dans Notion
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "TRANSPORT_SERVICE_SAVED", "Le service TRansport a bien été enregistré !"));
     }
 
 
