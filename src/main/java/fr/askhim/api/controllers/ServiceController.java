@@ -4,6 +4,7 @@ import fr.askhim.api.entity.*;
 import fr.askhim.api.entity.typeService.Course;
 import fr.askhim.api.entity.typeService.Formation.Competence;
 import fr.askhim.api.entity.typeService.Formation.Formation;
+import fr.askhim.api.entity.typeService.Loisir.Jeu;
 import fr.askhim.api.entity.typeService.Loisir.Loisir;
 import fr.askhim.api.entity.typeService.TacheMenageres.Materiel;
 import fr.askhim.api.entity.typeService.TacheMenageres.TacheMenagere;
@@ -55,7 +56,13 @@ public class ServiceController {
     private FormationRepository formationRepository;
 
     @Autowired
+    private JeuRepository jeuRepository;
+
+    @Autowired
     private LieuRepository lieuRepository;
+
+    @Autowired
+    private LoisirRepository loisirRepository;
 
     @Autowired
     private MotifRepository motifRepository;
@@ -72,6 +79,7 @@ public class ServiceController {
     private final CompetenceService competenceService;
     private final CourseService courseService;
     private final FormationService formationService;
+    private final JeuService jeuService;
     private final LieuService lieuService;
     private final LoisirService loisirService;
     private final MotifService motifService;
@@ -83,10 +91,11 @@ public class ServiceController {
 
     private ModelMapper mapper = new ModelMapper();
 
-    public ServiceController(CompetenceService competenceService, CourseService courseService, FormationService formationService, LieuService lieuService, LoisirService loisirService, MotifService motifService, ServiceService serviceService, TacheMenagereService tacheMenagereService, TokenService tokenService, TransportService transportService, TypeService typeService){
+    public ServiceController(CompetenceService competenceService, CourseService courseService, FormationService formationService, JeuService jeuService, LieuService lieuService, LoisirService loisirService, MotifService motifService, ServiceService serviceService, TacheMenagereService tacheMenagereService, TokenService tokenService, TransportService transportService, TypeService typeService){
         this.competenceService = competenceService;
         this.courseService = courseService;
         this.formationService = formationService;
+        this.jeuService = jeuService;
         this.lieuService = lieuService;
         this.loisirService = loisirService;
         this.motifService = motifService;
@@ -314,7 +323,43 @@ public class ServiceController {
         }
         Service serviceReg = serviceRepository.save(newService);
         Loisir newLoisir = new Loisir();
+        newLoisir.setNbPersonne(loisirModel.getNbPersonne());
+        newLoisir.setAnimal(loisirModel.getAnimal());
+        if(jeuService.jeuExist(loisirModel.getJeu())){
+            newLoisir.setJeu(jeuService.getJeuByLibelle(loisirModel.getJeu()));
+        }else{
+            Jeu jeu = new Jeu();
+            jeu.setLibelle(loisirModel.getJeu());
+            Jeu jeuN = jeuRepository.save(jeu);
+            newLoisir.setJeu(jeuN);
+        }
+        newLoisir.setService(serviceReg);
+        loisirRepository.save(newLoisir);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "SERVICE_CREATED", "Le service a bien été enregistré !"));
+    }
 
+    @PostMapping("/create-tachemenagere-service")
+    public ResponseEntity createTacheMenagereService(@RequestBody CreateTacheMenagereModel tacheMenagereModel){
+        Service newService = new Service();
+        newService.setName(tacheMenagereModel.getName());
+        newService.setDescription(tacheMenagereModel.getDescription());
+        newService.setDateStart(tacheMenagereModel.getDateStart());
+        newService.setDateEnd(tacheMenagereModel.getDateEnd());
+        newService.setState(true);
+        newService.setPrice(tacheMenagereModel.getPrice());
+        newService.setPostDate(new Date());
+        newService.setUser(tokenService.getUserByToken(UUID.fromString(tacheMenagereModel.getUserToken())));
+        newService.setType(typeService.getTypeByLibelle(TypeEnum.TACHE_MENAGERE.getLibelle()));
+        if(lieuService.lieuExist(tacheMenagereModel.getLieu())){
+            newService.setLieu(lieuService.getLieuByVille(tacheMenagereModel.getLieu()));
+        }else{
+            Lieu lieu = new Lieu();
+            lieu.setVille(tacheMenagereModel.getLieu());
+            Lieu lieuN = lieuRepository.save(lieu);
+            newService.setLieu(lieuN);
+        }
+        Service serviceReg = serviceRepository.save(newService);
+        TacheMenagere newTacheMenagere = new TacheMenagere();
         return null;
     }
 
