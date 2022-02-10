@@ -1,4 +1,4 @@
-package fr.askhim.api.model.Service.LoisirModel;
+package fr.askhim.api.model.Service;
 
 import fr.askhim.api.model.Service.ServiceModel;
 import lombok.Getter;
@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 public class LoisirModel extends ServiceModel {
     private int nbPersonne;
-    private String animal;
-    private JeuModel jeu;
+    private boolean animal;
+    private String jeu;
 }

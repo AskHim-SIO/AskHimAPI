@@ -1,4 +1,4 @@
-package fr.askhim.api.model.Service.TransportModel;
+package fr.askhim.api.model.Service;
 
 
 import fr.askhim.api.model.Service.ServiceModel;
@@ -13,5 +13,5 @@ public class TransportModel extends ServiceModel {
     private String pointArriver;
     private int nbPlaceDispo;
     private String vehiculePerso;
-    private MotifModel motif;
+    private String motif;
 }

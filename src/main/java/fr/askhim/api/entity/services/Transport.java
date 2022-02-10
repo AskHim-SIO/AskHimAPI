@@ -1,4 +1,4 @@
-package fr.askhim.api.entity.typeService.Loisir;
+package fr.askhim.api.entity.services;
 
 import fr.askhim.api.entity.Service;
 import lombok.Getter;
@@ -9,22 +9,27 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name="Loisir")
-public class Loisir {
+@Table(name="Transport")
+public class Transport {
 
     @Id
     @GeneratedValue
     private Long id;
 
     @Column(nullable = false)
-    private int nbPersonne;
+    private String pointDepart;
 
     @Column(nullable = false)
-    private String animal;
+    private String pointArriver;
 
-    @ManyToOne
-    @JoinColumn(name="jeu_id", nullable=false)
-    private Jeu jeu;
+    @Column(nullable = false)
+    private int nbPlaceDispo;
+
+    @Column(nullable = false)
+    private String vehiculePerso;
+
+    @Column(nullable = false)
+    private String motif;
 
     @OneToOne
     @JoinColumn(name="service_id", nullable=false)

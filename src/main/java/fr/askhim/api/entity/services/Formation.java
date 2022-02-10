@@ -1,4 +1,4 @@
-package fr.askhim.api.entity.typeService.Transport;
+package fr.askhim.api.entity.services;
 
 import fr.askhim.api.entity.Service;
 import lombok.Getter;
@@ -9,28 +9,24 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name="Transport")
-public class Transport {
+@Table(name="Formation")
+public class Formation {
 
     @Id
     @GeneratedValue
     private Long id;
 
     @Column(nullable = false)
-    private String pointDepart;
+    private int nbHeure;
 
     @Column(nullable = false)
-    private String pointArriver;
+    private String presence;
 
     @Column(nullable = false)
-    private int nbPlaceDispo;
+    private String materiel;
 
     @Column(nullable = false)
-    private String vehiculePerso;
-
-    @ManyToOne
-    @JoinColumn(name="motif_id", nullable=false)
-    private Motif motif;
+    private String competence;
 
     @OneToOne
     @JoinColumn(name="service_id", nullable=false)

@@ -1,7 +1,7 @@
 package fr.askhim.api.services;
 
 import fr.askhim.api.entity.Service;
-import fr.askhim.api.entity.typeService.Loisir.Loisir;
+import fr.askhim.api.entity.services.Loisir;
 import fr.askhim.api.repository.LoisirRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 

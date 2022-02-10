@@ -8,7 +8,7 @@ import lombok.Setter;
 public class CreateLoisirModel extends CreateServiceModel {
 
     private int nbPersonne;
-    private String animal;
+    private boolean animal;
     private String jeu;
 
 }

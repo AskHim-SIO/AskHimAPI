@@ -2,15 +2,11 @@ package fr.askhim.api.controllers;
 
 import com.github.javafaker.Faker;
 import fr.askhim.api.entity.*;
-import fr.askhim.api.entity.typeService.Course;
-import fr.askhim.api.entity.typeService.Formation.Competence;
-import fr.askhim.api.entity.typeService.Formation.Formation;
-import fr.askhim.api.entity.typeService.Loisir.Jeu;
-import fr.askhim.api.entity.typeService.Loisir.Loisir;
-import fr.askhim.api.entity.typeService.TacheMenageres.Materiel;
-import fr.askhim.api.entity.typeService.TacheMenageres.TacheMenagere;
-import fr.askhim.api.entity.typeService.Transport.Motif;
-import fr.askhim.api.entity.typeService.Transport.Transport;
+import fr.askhim.api.entity.services.Course;
+import fr.askhim.api.entity.services.Formation;
+import fr.askhim.api.entity.services.Loisir;
+import fr.askhim.api.entity.services.TacheMenagere;
+import fr.askhim.api.entity.services.Transport;
 import fr.askhim.api.repository.*;
 import fr.askhim.api.services.*;
 import fr.askhim.api.type.TypeEnum;
@@ -20,7 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -29,11 +24,6 @@ import java.util.Random;
 @RequestMapping("/seed")
 public class SeedController {
 
-    // -- Repositories --
-
-    @Autowired
-    private CompetenceRepository competenceRepository;
-
     @Autowired
     private CourseRepository courseRepository;
 
@@ -41,19 +31,10 @@ public class SeedController {
     private FormationRepository formationRepository;
 
     @Autowired
-    private JeuRepository jeuRepository;
-
-    @Autowired
     private LieuRepository lieuRepository;
 
     @Autowired
     private LoisirRepository loisirRepository;
-
-    @Autowired
-    private MaterielRepository materielRepository;
-
-    @Autowired
-    private MotifRepository motifRepository;
 
     @Autowired
     private PhotoRepository photoRepository;
@@ -79,15 +60,7 @@ public class SeedController {
 
     // -- Services --
 
-    private final CompetenceService competenceService;
-
-    private final JeuService jeuService;
-
     private final LieuService lieuService;
-
-    private final MaterielService materielService;
-
-    private final MotifService motifService;
 
     private final TypeService typeService;
 
@@ -95,12 +68,8 @@ public class SeedController {
 
     // ---------------
 
-    public SeedController(CompetenceService competenceService, JeuService jeuService, LieuService lieuService, MaterielService materielService, MotifService motifService, TypeService typeService, UserService userService) {
-        this.competenceService = competenceService;
-        this.jeuService = jeuService;
+    public SeedController(LieuService lieuService, TypeService typeService, UserService userService) {
         this.lieuService = lieuService;
-        this.materielService = materielService;
-        this.motifService = motifService;
         this.typeService = typeService;
         this.userService = userService;
     }
@@ -113,22 +82,6 @@ public class SeedController {
         }
     }
 
-    @GetMapping("/seedcompetences")
-    public String seedCompetences(int nbSeed) {
-        if (checkNbSeeds(nbSeed)) {
-            for (int i = 0; i < nbSeed; i++) {
-                Competence competenceFaker = new Competence();
-                do {
-                    competenceFaker.setLibelle(faker.beer().name()); // TODO
-                } while (competenceService.competenceExist(competenceFaker.getLibelle()));
-                competenceRepository.save(competenceFaker);
-            }
-            return "[OK] Competences ajoutées";
-        } else {
-            return "[Error] Le nombre doit être supérieur à 0";
-        }
-    }
-
     @GetMapping("/seedcourses")
     public String seedCourses(int nbSeed) {
         if (checkNbSeeds(nbSeed)) {
@@ -138,7 +91,6 @@ public class SeedController {
                 courseFaker.setService(newServiceEntity);
                 courseFaker.setAccompagnement(faker.beer().name()); // TODO
                 courseFaker.setTypeLieu(faker.beer().name()); // TODO
-                courseFaker.setAdresseLieu(faker.random().nextInt(1, 50)); // TODO
                 courseRepository.save(courseFaker);
             }
             return "[OK] Courses ajoutées";
@@ -157,26 +109,10 @@ public class SeedController {
                 formationFaker.setNbHeure(faker.random().nextInt(2, 16));
                 formationFaker.setPresence(faker.beer().name()); // TODO
                 formationFaker.setMateriel(faker.beer().name()); // TODO
-                formationFaker.setCompetence(competenceService.getRandomCompetence());
+                formationFaker.setCompetence(faker.beer().name()); // TODO
                 formationRepository.save(formationFaker);
             }
             return "[OK] Formations ajoutés";
-        } else {
-            return "[Error] Le nombre doit être supérieur à 0";
-        }
-    }
-
-    @GetMapping("/seedjeux")
-    public String seedJeux(int nbSeed){
-        if (checkNbSeeds(nbSeed)){
-            for (int i = 0; i < nbSeed; i++){
-                Jeu jeuFaker = new Jeu();
-                do{
-                    jeuFaker.setLibelle(faker.beer().name()); // TODO
-                }while(jeuService.jeuExist(jeuFaker.getLibelle()));
-                jeuRepository.save(jeuFaker);
-            }
-            return "[OK] Jeux ajoutés";
         } else {
             return "[Error] Le nombre doit être supérieur à 0";
         }
@@ -188,8 +124,10 @@ public class SeedController {
             for (int i = 0; i < nbSeed; i++) {
                 Lieu lieuFaker = new Lieu();
                 do {
+                    lieuFaker.setAdresse(faker.address().streetAddress());
+                    lieuFaker.setCodePostal(Integer.parseInt(faker.address().zipCode().replace("-", "")));
                     lieuFaker.setVille(faker.address().cityName());
-                } while (lieuService.lieuExist(lieuFaker.getVille()));
+                } while (lieuService.lieuExist(lieuFaker.getAdresse(), lieuFaker.getCodePostal(), lieuFaker.getVille()));
                 lieuRepository.save(lieuFaker);
             }
             return "[OK] Lieux ajoutés";
@@ -206,44 +144,14 @@ public class SeedController {
                 Loisir loisirFaker = new Loisir();
                 loisirFaker.setService(newServiceEntity);
                 loisirFaker.setNbPersonne(faker.random().nextInt(2, 20));
-                loisirFaker.setAnimal(faker.beer().name()); // TODO
-                loisirFaker.setJeu(jeuService.getRandomJeu());
+                Random random = new Random();
+                int rdmResult = random.nextInt(2);
+                loisirFaker.setAnimal((rdmResult == 0) ? true : false);
+                loisirFaker.setJeu(faker.beer().name()); // TODO
                 loisirRepository.save(loisirFaker);
             }
             return "[OK] Loisirs ajoutés";
         }else {
-            return "[Error] Le nombre doit être supérieur à 0";
-        }
-    }
-
-    /*@GetMapping("/seedmateriels")
-    public String seedMateriels(int nbSeed){
-        if (checkNbSeeds(nbSeed)){
-            for (int i = 0; i < nbSeed; i++){
-                Materiel materielFaker = new Materiel();
-                do {
-                    materielFaker.setLibelle(faker.beer().name()); // TODO
-                }while(materielService.materielExist(materielFaker.getLibelle()));
-                materielRepository.save(materielFaker);
-            }
-            return "[OK] Materiels ajoutés";
-        }else {
-            return "[Error] Le nombre doit être supérieur à 0";
-        }
-    }*/
-
-    @GetMapping("/seedmotifs")
-    public String seedMotifs(int nbSeed) {
-        if (checkNbSeeds(nbSeed)) {
-            for (int i = 0; i < nbSeed; i++) {
-                Motif motifFaker = new Motif();
-                do {
-                    motifFaker.setLibelle(faker.beer().name());
-                } while (motifService.motifExist(motifFaker.getLibelle()));
-                motifRepository.save(motifFaker);
-            }
-            return "[OK] Motifs ajoutés";
-        } else {
             return "[Error] Le nombre doit être supérieur à 0";
         }
     }
@@ -257,22 +165,8 @@ public class SeedController {
                 tacheMenagereFaker.setService(newServiceEntity);
                 tacheMenagereFaker.setNbHeure(faker.random().nextInt(1,6));
                 tacheMenagereFaker.setLibelle(faker.beer().name()); // TODO
-                int nbMateriel = (new Random().nextInt(3)) + 1;
+                tacheMenagereFaker.setMateriel(faker.beer().name()); // TODO
                 TacheMenagere tacheMenagereNew = tacheMenagereRepository.save(tacheMenagereFaker);
-                for(int y = 0 ; y < nbMateriel ; y++){
-                    Materiel materielFaker = new Materiel();
-                    materielFaker.setLibelle(faker.beer().name()); // TODO
-                    if(materielService.materielExist(materielFaker.getLibelle())){
-                        Materiel materielRecp = materielService.getMaterielByLibelle(materielFaker.getLibelle());
-                        materielRecp.getTacheMenageres().add(tacheMenagereNew);
-                        materielRepository.save(materielRecp);
-                    }else{
-                        List<TacheMenagere> tachesMenagere = new ArrayList<>();
-                        tachesMenagere.add(tacheMenagereNew);
-                        materielFaker.setTacheMenageres(tachesMenagere);
-                        materielRepository.save(materielFaker);
-                    }
-                }
             }
             return "[OK] Tâches ménagère ajoutés";
         } else {
@@ -291,26 +185,10 @@ public class SeedController {
                 transportFaker.setPointArriver(faker.address().fullAddress());
                 transportFaker.setNbPlaceDispo(faker.random().nextInt(1, 4));
                 transportFaker.setVehiculePerso(faker.beer().name()); // TODO
-                transportFaker.setMotif(motifService.getRandomMotif());
+                transportFaker.setMotif(faker.beer().name()); // TODO
                 transportRepository.save(transportFaker);
             }
             return "[OK] Transports ajoutés";
-        } else {
-            return "[Error] Le nombre doit être supérieur à 0";
-        }
-    }
-
-    @GetMapping("/seedtypes")
-    public String seedTypes(int nbSeed) {
-        if (checkNbSeeds(nbSeed)) {
-            for (int i = 0; i < nbSeed; i++) {
-                Type typeFaker = new Type();
-                do {
-                    typeFaker.setLibelle(faker.beer().name()); // TODO
-                } while (typeService.typeExist(typeFaker.getLibelle()));
-                typeRepository.save(typeFaker);
-            }
-            return "[OK] Types ajoutés";
         } else {
             return "[Error] Le nombre doit être supérieur à 0";
         }
@@ -341,12 +219,7 @@ public class SeedController {
 
     @GetMapping("/test")
     public String test() {
-        long currentTimeInit = System.currentTimeMillis();
-        List<Service> services = serviceRepository.findAll();
-        long currentTimeAfterSQL = System.currentTimeMillis();
-        System.out.println("Recuperation terminee, construction du résultat...");
-        String rtnRes = "Services récupérés : " + services.size() + "services\n \nDurée SQL :\n> En seconde : " + ((currentTimeAfterSQL - currentTimeInit) / 1000 + "s\n> En milliseconde : " + (currentTimeAfterSQL - currentTimeInit) + "ms");
-        return rtnRes + "\n \nDurée d'execution : " + (currentTimeAfterSQL - currentTimeInit) + "ms";
+        return faker.address().zipCode();
     }
 
     private Service buildServiceSeeded(TypeEnum typeEnum){
@@ -355,33 +228,13 @@ public class SeedController {
         serviceEntityFaker.setDescription(faker.beer().name()); // TODO
         serviceEntityFaker.setDateStart(faker.date().birthday(-100, 0));
         serviceEntityFaker.setDateEnd(faker.date().birthday(0, 100));
-        serviceEntityFaker.setPrice((long) faker.number().numberBetween(1, 2000));
+        serviceEntityFaker.setPrice((long) faker.number().numberBetween(1, 50));
         serviceEntityFaker.setPostDate(new Date());
         serviceEntityFaker.setUser(userService.getRandomUser());
         serviceEntityFaker.setType(typeRepository.getTypeByLibelle(typeEnum.getLibelle()));
         serviceEntityFaker.setLieu(lieuService.getRandomLieu());
         Photo photo = new Photo();
-        switch(typeEnum){
-            case TRANSPORT:
-                photo.setLibelle("http://cdn.askhim.ctrempe.fr/transport.jpg");
-                break;
-
-            case COURSE:
-                photo.setLibelle("http://cdn.askhim.ctrempe.fr/course.jpg");
-                break;
-
-            case FORMATION:
-                photo.setLibelle("http://cdn.askhim.ctrempe.fr/formation.jpg");
-                break;
-
-            case LOISIR:
-                photo.setLibelle("http://cdn.askhim.ctrempe.fr/loisir.jpg");
-                break;
-
-            case TACHE_MENAGERE:
-                photo.setLibelle("http://cdn.askhim.ctrempe.fr/tacheMenagere.jpg");
-                break;
-        }
+        photo.setLibelle(typeEnum.getDefaultPhoto());
         Service newService = serviceRepository.save(serviceEntityFaker);
         photo.setService(newService);
         photoRepository.save(photo);

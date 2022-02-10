@@ -1,30 +1,19 @@
 package fr.askhim.api.controllers;
 
 import fr.askhim.api.entity.*;
-import fr.askhim.api.entity.typeService.Course;
-import fr.askhim.api.entity.typeService.Formation.Competence;
-import fr.askhim.api.entity.typeService.Formation.Formation;
-import fr.askhim.api.entity.typeService.Loisir.Jeu;
-import fr.askhim.api.entity.typeService.Loisir.Loisir;
-import fr.askhim.api.entity.typeService.TacheMenageres.Materiel;
-import fr.askhim.api.entity.typeService.TacheMenageres.TacheMenagere;
-import fr.askhim.api.entity.typeService.Transport.Motif;
-import fr.askhim.api.entity.typeService.Transport.Transport;
+import fr.askhim.api.entity.services.Course;
+import fr.askhim.api.entity.services.Formation;
+import fr.askhim.api.entity.services.Loisir;
+import fr.askhim.api.entity.services.TacheMenagere;
+import fr.askhim.api.entity.services.Transport;
 import fr.askhim.api.model.CreateServiceModel.*;
-import fr.askhim.api.model.LieuModel;
-import fr.askhim.api.model.PhotoModel;
 import fr.askhim.api.model.Service.CourseModel;
-import fr.askhim.api.model.Service.FormationModel.CompetenceModel;
-import fr.askhim.api.model.Service.FormationModel.FormationModel;
-import fr.askhim.api.model.Service.LoisirModel.JeuModel;
-import fr.askhim.api.model.Service.LoisirModel.LoisirModel;
+import fr.askhim.api.model.Service.FormationModel;
+import fr.askhim.api.model.Service.LoisirModel;
 import fr.askhim.api.model.Service.ServiceModel;
-import fr.askhim.api.model.Service.TacheMenagereModel.MaterielModel;
-import fr.askhim.api.model.Service.TacheMenagereModel.TacheMenagereModel;
-import fr.askhim.api.model.Service.TransportModel.MotifModel;
-import fr.askhim.api.model.Service.TransportModel.TransportModel;
+import fr.askhim.api.model.Service.TacheMenagereModel;
+import fr.askhim.api.model.Service.TransportModel;
 import fr.askhim.api.model.ServiceMinModel;
-import fr.askhim.api.model.UserModel;
 import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.repository.*;
 import fr.askhim.api.services.*;
@@ -37,7 +26,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
 import java.util.*;
 
 import static java.util.Collections.shuffle;
@@ -47,25 +35,16 @@ import static java.util.Collections.shuffle;
 public class ServiceController {
 
     @Autowired
-    private CompetenceRepository competenceRepository;
-
-    @Autowired
     private CourseRepository courseRepository;
 
     @Autowired
     private FormationRepository formationRepository;
 
     @Autowired
-    private JeuRepository jeuRepository;
-
-    @Autowired
     private LieuRepository lieuRepository;
 
     @Autowired
     private LoisirRepository loisirRepository;
-
-    @Autowired
-    private MotifRepository motifRepository;
 
     @Autowired
     private ServiceRepository serviceRepository;
@@ -76,13 +55,10 @@ public class ServiceController {
     @Autowired
     private TypeRepository typeRepository;
 
-    private final CompetenceService competenceService;
     private final CourseService courseService;
     private final FormationService formationService;
-    private final JeuService jeuService;
     private final LieuService lieuService;
     private final LoisirService loisirService;
-    private final MotifService motifService;
     private final ServiceService serviceService;
     private final TacheMenagereService tacheMenagereService;
     private final TokenService tokenService;
@@ -91,14 +67,11 @@ public class ServiceController {
 
     private ModelMapper mapper = new ModelMapper();
 
-    public ServiceController(CompetenceService competenceService, CourseService courseService, FormationService formationService, JeuService jeuService, LieuService lieuService, LoisirService loisirService, MotifService motifService, ServiceService serviceService, TacheMenagereService tacheMenagereService, TokenService tokenService, TransportService transportService, TypeService typeService){
-        this.competenceService = competenceService;
+    public ServiceController(CourseService courseService, FormationService formationService, LieuService lieuService, LoisirService loisirService, ServiceService serviceService, TacheMenagereService tacheMenagereService, TokenService tokenService, TransportService transportService, TypeService typeService){
         this.courseService = courseService;
         this.formationService = formationService;
-        this.jeuService = jeuService;
         this.lieuService = lieuService;
         this.loisirService = loisirService;
-        this.motifService = motifService;
         this.serviceService = serviceService;
         this.tacheMenagereService = tacheMenagereService;
         this.tokenService = tokenService;
@@ -115,7 +88,6 @@ public class ServiceController {
             serviceModels.add(serviceMinMapToDTO(service));
         });
 
-        //todo tester le shuffle
         shuffle(serviceModels);
         return serviceModels;
     }
@@ -206,11 +178,13 @@ public class ServiceController {
         newService.setPostDate(new Date());
         newService.setUser(tokenService.getUserByToken(UUID.fromString(transportModel.getUserToken())));
         newService.setType(typeService.getTypeByLibelle(TypeEnum.TRANSPORT.getLibelle()));
-        if(lieuService.lieuExist(transportModel.getLieu())){
-            newService.setLieu(lieuService.getLieuByVille(transportModel.getLieu()));
+        if(lieuService.lieuExist(transportModel.getLieuAdresse(), transportModel.getLieuCodePostal(), transportModel.getLieuVille())){
+            newService.setLieu(lieuService.getLieuByTout(transportModel.getLieuAdresse(), transportModel.getLieuCodePostal(), transportModel.getLieuVille()));
         }else{
             Lieu lieu = new Lieu();
-            lieu.setVille(transportModel.getLieu());
+            lieu.setAdresse(transportModel.getLieuAdresse());
+            lieu.setCodePostal(transportModel.getLieuCodePostal());
+            lieu.setVille(transportModel.getLieuVille());
             Lieu lieuN = lieuRepository.save(lieu);
             newService.setLieu(lieuN);
         }
@@ -220,14 +194,7 @@ public class ServiceController {
         newTransport.setPointArriver(transportModel.getPointArriver());
         newTransport.setNbPlaceDispo(transportModel.getNbPlaceDispo());
         newTransport.setVehiculePerso(transportModel.getVehiculePerso());
-        if(motifService.motifExist(transportModel.getMotif())){
-            newTransport.setMotif(motifService.getMotifByLibelle(transportModel.getMotif()));
-        }else{
-            Motif motif = new Motif();
-            motif.setLibelle(transportModel.getMotif());
-            Motif motifN = motifRepository.save(motif);
-            newTransport.setMotif(motifN);
-        }
+        newTransport.setMotif(transportModel.getMotif());
         newTransport.setService(serviceReg);
         transportRepository.save(newTransport);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "SERVICE_CREATED", "Le service a bien été enregistré !"));
@@ -245,11 +212,13 @@ public class ServiceController {
         newService.setPostDate(new Date());
         newService.setUser(tokenService.getUserByToken(UUID.fromString(courseModel.getUserToken())));
         newService.setType(typeService.getTypeByLibelle(TypeEnum.COURSE.getLibelle()));
-        if(lieuService.lieuExist(courseModel.getLieu())){
-            newService.setLieu(lieuService.getLieuByVille(courseModel.getLieu()));
+        if(lieuService.lieuExist(courseModel.getLieuAdresse(), courseModel.getLieuCodePostal(), courseModel.getLieuVille())){
+            newService.setLieu(lieuService.getLieuByTout(courseModel.getLieuAdresse(), courseModel.getLieuCodePostal(), courseModel.getLieuVille()));
         }else{
             Lieu lieu = new Lieu();
-            lieu.setVille(courseModel.getLieu());
+            lieu.setAdresse(courseModel.getLieuAdresse());
+            lieu.setCodePostal(courseModel.getLieuCodePostal());
+            lieu.setVille(courseModel.getLieuVille());
             Lieu lieuN = lieuRepository.save(lieu);
             newService.setLieu(lieuN);
         }
@@ -257,7 +226,6 @@ public class ServiceController {
         Course newCourse = new Course();
         newCourse.setAccompagnement(courseModel.getAccompagnement());
         newCourse.setTypeLieu(courseModel.getTypeLieu());
-        newCourse.setAdresseLieu(courseModel.getAdresseLieu());
         newCourse.setService(serviceReg);
         courseRepository.save(newCourse);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "SERVICE_CREATED", "Le service a bien été enregistré !"));
@@ -275,11 +243,13 @@ public class ServiceController {
         newService.setPostDate(new Date());
         newService.setUser(tokenService.getUserByToken(UUID.fromString(formationModel.getUserToken())));
         newService.setType(typeService.getTypeByLibelle(TypeEnum.FORMATION.getLibelle()));
-        if(lieuService.lieuExist(formationModel.getLieu())){
-            newService.setLieu(lieuService.getLieuByVille(formationModel.getLieu()));
+        if(lieuService.lieuExist(formationModel.getLieuAdresse(), formationModel.getLieuCodePostal(), formationModel.getLieuVille())){
+            newService.setLieu(lieuService.getLieuByTout(formationModel.getLieuAdresse(), formationModel.getLieuCodePostal(), formationModel.getLieuVille()));
         }else{
             Lieu lieu = new Lieu();
-            lieu.setVille(formationModel.getLieu());
+            lieu.setAdresse(formationModel.getLieuAdresse());
+            lieu.setCodePostal(formationModel.getLieuCodePostal());
+            lieu.setVille(formationModel.getLieuVille());
             Lieu lieuN = lieuRepository.save(lieu);
             newService.setLieu(lieuN);
         }
@@ -288,14 +258,7 @@ public class ServiceController {
         newFormation.setNbHeure(formationModel.getNbHeure());
         newFormation.setPresence(formationModel.getPresence());
         newFormation.setMateriel(formationModel.getMateriel());
-        if(competenceService.competenceExist(formationModel.getCompetence())){
-            newFormation.setCompetence(competenceService.getCompetenceByLibelle(formationModel.getCompetence()));
-        }else{
-            Competence competence = new Competence();
-            competence.setLibelle(formationModel.getCompetence());
-            Competence competenceN = competenceRepository.save(competence);
-            newFormation.setCompetence(competenceN);
-        }
+        newFormation.setCompetence(formationModel.getCompetence());
         newFormation.setService(serviceReg);
         formationRepository.save(newFormation);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "SERVICE_CREATED", "Le service a bien été enregistré !"));
@@ -313,26 +276,21 @@ public class ServiceController {
         newService.setPostDate(new Date());
         newService.setUser(tokenService.getUserByToken(UUID.fromString(loisirModel.getUserToken())));
         newService.setType(typeService.getTypeByLibelle(TypeEnum.LOISIR.getLibelle()));
-        if(lieuService.lieuExist(loisirModel.getLieu())){
-            newService.setLieu(lieuService.getLieuByVille(loisirModel.getLieu()));
+        if(lieuService.lieuExist(loisirModel.getLieuAdresse(), loisirModel.getLieuCodePostal(), loisirModel.getLieuVille())){
+            newService.setLieu(lieuService.getLieuByTout(loisirModel.getLieuAdresse(), loisirModel.getLieuCodePostal(), loisirModel.getLieuVille()));
         }else{
             Lieu lieu = new Lieu();
-            lieu.setVille(loisirModel.getLieu());
+            lieu.setAdresse(loisirModel.getLieuAdresse());
+            lieu.setCodePostal(loisirModel.getLieuCodePostal());
+            lieu.setVille(loisirModel.getLieuVille());
             Lieu lieuN = lieuRepository.save(lieu);
             newService.setLieu(lieuN);
         }
         Service serviceReg = serviceRepository.save(newService);
         Loisir newLoisir = new Loisir();
         newLoisir.setNbPersonne(loisirModel.getNbPersonne());
-        newLoisir.setAnimal(loisirModel.getAnimal());
-        if(jeuService.jeuExist(loisirModel.getJeu())){
-            newLoisir.setJeu(jeuService.getJeuByLibelle(loisirModel.getJeu()));
-        }else{
-            Jeu jeu = new Jeu();
-            jeu.setLibelle(loisirModel.getJeu());
-            Jeu jeuN = jeuRepository.save(jeu);
-            newLoisir.setJeu(jeuN);
-        }
+        newLoisir.setAnimal(loisirModel.isAnimal());
+        newLoisir.setJeu(loisirModel.getJeu());
         newLoisir.setService(serviceReg);
         loisirRepository.save(newLoisir);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "SERVICE_CREATED", "Le service a bien été enregistré !"));
@@ -350,16 +308,19 @@ public class ServiceController {
         newService.setPostDate(new Date());
         newService.setUser(tokenService.getUserByToken(UUID.fromString(tacheMenagereModel.getUserToken())));
         newService.setType(typeService.getTypeByLibelle(TypeEnum.TACHE_MENAGERE.getLibelle()));
-        if(lieuService.lieuExist(tacheMenagereModel.getLieu())){
-            newService.setLieu(lieuService.getLieuByVille(tacheMenagereModel.getLieu()));
+        if(lieuService.lieuExist(tacheMenagereModel.getLieuAdresse(), tacheMenagereModel.getLieuCodePostal(), tacheMenagereModel.getLieuVille())){
+            newService.setLieu(lieuService.getLieuByTout(tacheMenagereModel.getLieuAdresse(), tacheMenagereModel.getLieuCodePostal(), tacheMenagereModel.getLieuVille()));
         }else{
             Lieu lieu = new Lieu();
-            lieu.setVille(tacheMenagereModel.getLieu());
+            lieu.setAdresse(tacheMenagereModel.getLieuAdresse());
+            lieu.setCodePostal(tacheMenagereModel.getLieuCodePostal());
+            lieu.setVille(tacheMenagereModel.getLieuVille());
             Lieu lieuN = lieuRepository.save(lieu);
             newService.setLieu(lieuN);
         }
         Service serviceReg = serviceRepository.save(newService);
         TacheMenagere newTacheMenagere = new TacheMenagere();
+
         return null;
     }
 
@@ -466,8 +427,7 @@ public class ServiceController {
         serviceModel.setPointArriver(transport.getPointArriver());
         serviceModel.setNbPlaceDispo(transport.getNbPlaceDispo());
         serviceModel.setVehiculePerso(transport.getVehiculePerso());
-        MotifModel motifModel = mapper.map(transport.getMotif(), MotifModel.class);
-        serviceModel.setMotif(motifModel);
+        serviceModel.setMotif(transport.getMotif());
         return serviceModel;
     }
 
@@ -476,7 +436,6 @@ public class ServiceController {
         Course course = courseService.getCourseByService(service);
         serviceModel.setAccompagnement(course.getAccompagnement());
         serviceModel.setTypeLieu(course.getTypeLieu());
-        serviceModel.setAdresseLieu(course.getAdresseLieu());
         return serviceModel;
     }
 
@@ -486,8 +445,7 @@ public class ServiceController {
         serviceModel.setNbHeure(formation.getNbHeure());
         serviceModel.setPresence(formation.getPresence());
         serviceModel.setMateriel(formation.getMateriel());
-        CompetenceModel competenceModel = mapper.map(formation.getCompetence(), CompetenceModel.class);
-        serviceModel.setCompetence(competenceModel);
+        serviceModel.setCompetence(formation.getCompetence());
         return serviceModel;
     }
 
@@ -495,9 +453,8 @@ public class ServiceController {
         LoisirModel serviceModel = mapper.map(service, LoisirModel.class);
         Loisir loisir = loisirService.getLoisirByService(service);
         serviceModel.setNbPersonne(loisir.getNbPersonne());
-        serviceModel.setAnimal(loisir.getAnimal());
-        JeuModel jeuModel = mapper.map(loisir.getJeu(), JeuModel.class);
-        serviceModel.setJeu(jeuModel);
+        serviceModel.setAnimal(loisir.isAnimal());
+        serviceModel.setJeu(loisir.getJeu());
         return serviceModel;
     }
 
@@ -506,11 +463,7 @@ public class ServiceController {
         TacheMenagere tacheMenagere = tacheMenagereService.getTacheMenagereService(service);
         serviceModel.setNbHeure(tacheMenagere.getNbHeure());
         serviceModel.setLibelle(tacheMenagere.getLibelle());
-        List<MaterielModel> materielsModels = new ArrayList<>();
-        for(Materiel materiel : tacheMenagere.getDisposer_de()){
-            materielsModels.add(mapper.map(materiel, MaterielModel.class));
-        }
-        serviceModel.setDisposer_de(materielsModels);
+        serviceModel.setMateriel(tacheMenagere.getMateriel());
         return serviceModel;
     }
 }

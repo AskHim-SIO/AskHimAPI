@@ -1,7 +1,7 @@
 package fr.askhim.api.repository;
 
 import fr.askhim.api.entity.Service;
-import fr.askhim.api.entity.typeService.TacheMenageres.TacheMenagere;
+import fr.askhim.api.entity.services.TacheMenagere;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

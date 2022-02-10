@@ -1,11 +1,10 @@
-package fr.askhim.api.entity.typeService.TacheMenageres;
+package fr.askhim.api.entity.services;
 
 import fr.askhim.api.entity.Service;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Getter
 @Setter
@@ -23,8 +22,8 @@ public class TacheMenagere {
     @Column(nullable = false)
     private String libelle;
 
-    @ManyToMany(mappedBy = "tacheMenageres")
-    List<Materiel> disposer_de;
+    @Column(nullable = false)
+    private String materiel;
 
     @OneToOne
     @JoinColumn(name="service_id", nullable=false)

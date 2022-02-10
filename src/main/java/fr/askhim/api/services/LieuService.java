@@ -17,11 +17,16 @@ public class LieuService {
     }
 
 
-    public Lieu getLieuByVille(String ville){
+    /*public Lieu getLieuByVille(String ville){
         return lieuRepository.findByVille(ville);
+    }*/
+
+    public Lieu getLieuByTout(String adresse, int codePostal, String ville){
+        return lieuRepository.findByAdresseAndCodePostalAndVille(adresse, codePostal, ville);
     }
-    public boolean lieuExist(String ville){
-        return getLieuByVille(ville) != null;
+
+    public boolean lieuExist(String adresse, int codePostal, String ville){
+        return getLieuByTout(adresse, codePostal, ville) != null;
     }
 
     public Lieu getRandomLieu(){

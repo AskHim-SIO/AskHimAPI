@@ -21,6 +21,12 @@ public class Lieu {
 	private Long id;
 
 	@Column(nullable = false)
+	private String adresse;
+
+	@Column(nullable = false)
+	private int codePostal;
+
+	@Column(nullable = false)
 	private String ville;
 
 	//une ville pour plusieurs services

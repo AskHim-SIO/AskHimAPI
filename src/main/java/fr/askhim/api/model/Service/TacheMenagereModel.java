@@ -1,4 +1,4 @@
-package fr.askhim.api.model.Service.TacheMenagereModel;
+package fr.askhim.api.model.Service;
 
 import fr.askhim.api.model.Service.ServiceModel;
 import lombok.Getter;
@@ -13,5 +13,6 @@ public class TacheMenagereModel extends ServiceModel {
 
     private int nbHeure;
     private String libelle;
-    private List<MaterielModel> disposer_de = new ArrayList<>();
+    private String materiel;
+
 }

@@ -8,5 +8,5 @@ import lombok.Setter;
 public class CourseModel extends ServiceModel{
     private String accompagnement;
     private String typeLieu;
-    private int adresseLieu;
+
 }

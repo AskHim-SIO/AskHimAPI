@@ -8,6 +8,8 @@ import lombok.Setter;
 public class LieuModel {
 
     private Long id;
+    private String adresse;
+    private int codePostal;
     private String ville;
 
 }

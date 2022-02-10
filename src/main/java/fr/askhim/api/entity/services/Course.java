@@ -1,4 +1,4 @@
-package fr.askhim.api.entity.typeService;
+package fr.askhim.api.entity.services;
 
 import fr.askhim.api.entity.Service;
 import lombok.Getter;
@@ -21,9 +21,6 @@ public class Course {
 
     @Column(nullable = false)
     private String typeLieu;
-
-    @Column(nullable = false)
-    private int adresseLieu;
 
     @OneToOne
     @JoinColumn(name="service_id", nullable=false)

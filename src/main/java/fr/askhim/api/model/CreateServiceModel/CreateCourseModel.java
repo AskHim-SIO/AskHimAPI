@@ -9,6 +9,5 @@ public class CreateCourseModel extends CreateServiceModel {
 
     private String accompagnement;
     private String typeLieu;
-    private int adresseLieu;
 
 }

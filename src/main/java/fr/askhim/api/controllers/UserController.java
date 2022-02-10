@@ -26,19 +26,13 @@ import java.util.Optional;
 @RequestMapping("/user")
 public class UserController {
 
-    // -- Repositories --
-
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private TokenRepository tokenRepository;
 
-    // -- Services --
-
     private final UserService userService;
-
-    // -- Others --
 
     private ModelMapper mapper = new ModelMapper();
 
