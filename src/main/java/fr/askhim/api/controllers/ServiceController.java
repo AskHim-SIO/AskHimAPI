@@ -2,15 +2,14 @@ package fr.askhim.api.controllers;
 
 import fr.askhim.api.entity.*;
 import fr.askhim.api.entity.typeService.Course;
+import fr.askhim.api.entity.typeService.Formation.Competence;
 import fr.askhim.api.entity.typeService.Formation.Formation;
 import fr.askhim.api.entity.typeService.Loisir.Loisir;
 import fr.askhim.api.entity.typeService.TacheMenageres.Materiel;
 import fr.askhim.api.entity.typeService.TacheMenageres.TacheMenagere;
 import fr.askhim.api.entity.typeService.Transport.Motif;
 import fr.askhim.api.entity.typeService.Transport.Transport;
-import fr.askhim.api.model.CreateServiceModel.CreateCourseModel;
-import fr.askhim.api.model.CreateServiceModel.CreateServiceModel;
-import fr.askhim.api.model.CreateServiceModel.CreateTransportModel;
+import fr.askhim.api.model.CreateServiceModel.*;
 import fr.askhim.api.model.LieuModel;
 import fr.askhim.api.model.PhotoModel;
 import fr.askhim.api.model.Service.CourseModel;
@@ -47,7 +46,13 @@ import static java.util.Collections.shuffle;
 public class ServiceController {
 
     @Autowired
+    private CompetenceRepository competenceRepository;
+
+    @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private FormationRepository formationRepository;
 
     @Autowired
     private LieuRepository lieuRepository;
@@ -64,6 +69,7 @@ public class ServiceController {
     @Autowired
     private TypeRepository typeRepository;
 
+    private final CompetenceService competenceService;
     private final CourseService courseService;
     private final FormationService formationService;
     private final LieuService lieuService;
@@ -77,7 +83,8 @@ public class ServiceController {
 
     private ModelMapper mapper = new ModelMapper();
 
-    public ServiceController(CourseService courseService, FormationService formationService, LieuService lieuService, LoisirService loisirService, MotifService motifService, ServiceService serviceService, TacheMenagereService tacheMenagereService, TokenService tokenService, TransportService transportService, TypeService typeService){
+    public ServiceController(CompetenceService competenceService, CourseService courseService, FormationService formationService, LieuService lieuService, LoisirService loisirService, MotifService motifService, ServiceService serviceService, TacheMenagereService tacheMenagereService, TokenService tokenService, TransportService transportService, TypeService typeService){
+        this.competenceService = competenceService;
         this.courseService = courseService;
         this.formationService = formationService;
         this.lieuService = lieuService;
@@ -190,11 +197,11 @@ public class ServiceController {
         newService.setPostDate(new Date());
         newService.setUser(tokenService.getUserByToken(UUID.fromString(transportModel.getUserToken())));
         newService.setType(typeService.getTypeByLibelle(TypeEnum.TRANSPORT.getLibelle()));
-        if(lieuService.lieuExist(transportModel.getLieuStr())){
-            newService.setLieu(lieuService.getLieuByVille(transportModel.getLieuStr()));
+        if(lieuService.lieuExist(transportModel.getLieu())){
+            newService.setLieu(lieuService.getLieuByVille(transportModel.getLieu()));
         }else{
             Lieu lieu = new Lieu();
-            lieu.setVille(transportModel.getLieuStr());
+            lieu.setVille(transportModel.getLieu());
             Lieu lieuN = lieuRepository.save(lieu);
             newService.setLieu(lieuN);
         }
@@ -214,7 +221,7 @@ public class ServiceController {
         }
         newTransport.setService(serviceReg);
         transportRepository.save(newTransport);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "TRANSPORT_SERVICE_CREATED", "Le service Transport a bien été enregistré !"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "SERVICE_CREATED", "Le service a bien été enregistré !"));
     }
 
     @PostMapping("/create-course-service")
@@ -228,12 +235,12 @@ public class ServiceController {
         newService.setPrice(courseModel.getPrice());
         newService.setPostDate(new Date());
         newService.setUser(tokenService.getUserByToken(UUID.fromString(courseModel.getUserToken())));
-        newService.setType(typeService.getTypeByLibelle(TypeEnum.TRANSPORT.getLibelle()));
-        if(lieuService.lieuExist(courseModel.getLieuStr())){
-            newService.setLieu(lieuService.getLieuByVille(courseModel.getLieuStr()));
+        newService.setType(typeService.getTypeByLibelle(TypeEnum.COURSE.getLibelle()));
+        if(lieuService.lieuExist(courseModel.getLieu())){
+            newService.setLieu(lieuService.getLieuByVille(courseModel.getLieu()));
         }else{
             Lieu lieu = new Lieu();
-            lieu.setVille(courseModel.getLieuStr());
+            lieu.setVille(courseModel.getLieu());
             Lieu lieuN = lieuRepository.save(lieu);
             newService.setLieu(lieuN);
         }
@@ -244,7 +251,71 @@ public class ServiceController {
         newCourse.setAdresseLieu(courseModel.getAdresseLieu());
         newCourse.setService(serviceReg);
         courseRepository.save(newCourse);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "COURSE_SERVICE_CREATED", "Le service Course a bien été enregistré !"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "SERVICE_CREATED", "Le service a bien été enregistré !"));
+    }
+
+    @PostMapping("/create-formation-service")
+    public ResponseEntity createFormationService(@RequestBody CreateFormationModel formationModel){
+        Service newService = new Service();
+        newService.setName(formationModel.getName());
+        newService.setDescription(formationModel.getDescription());
+        newService.setDateStart(formationModel.getDateStart());
+        newService.setDateEnd(formationModel.getDateEnd());
+        newService.setState(true);
+        newService.setPrice(formationModel.getPrice());
+        newService.setPostDate(new Date());
+        newService.setUser(tokenService.getUserByToken(UUID.fromString(formationModel.getUserToken())));
+        newService.setType(typeService.getTypeByLibelle(TypeEnum.FORMATION.getLibelle()));
+        if(lieuService.lieuExist(formationModel.getLieu())){
+            newService.setLieu(lieuService.getLieuByVille(formationModel.getLieu()));
+        }else{
+            Lieu lieu = new Lieu();
+            lieu.setVille(formationModel.getLieu());
+            Lieu lieuN = lieuRepository.save(lieu);
+            newService.setLieu(lieuN);
+        }
+        Service serviceReg = serviceRepository.save(newService);
+        Formation newFormation = new Formation();
+        newFormation.setNbHeure(formationModel.getNbHeure());
+        newFormation.setPresence(formationModel.getPresence());
+        newFormation.setMateriel(formationModel.getMateriel());
+        if(competenceService.competenceExist(formationModel.getCompetence())){
+            newFormation.setCompetence(competenceService.getCompetenceByLibelle(formationModel.getCompetence()));
+        }else{
+            Competence competence = new Competence();
+            competence.setLibelle(formationModel.getCompetence());
+            Competence competenceN = competenceRepository.save(competence);
+            newFormation.setCompetence(competenceN);
+        }
+        newFormation.setService(serviceReg);
+        formationRepository.save(newFormation);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "SERVICE_CREATED", "Le service a bien été enregistré !"));
+    }
+
+    @PostMapping("create-loisir-service")
+    public ResponseEntity createLoisirService(@RequestBody CreateLoisirModel loisirModel){
+        Service newService = new Service();
+        newService.setName(loisirModel.getName());
+        newService.setDescription(loisirModel.getDescription());
+        newService.setDateStart(loisirModel.getDateStart());
+        newService.setDateEnd(loisirModel.getDateEnd());
+        newService.setState(true);
+        newService.setPrice(loisirModel.getPrice());
+        newService.setPostDate(new Date());
+        newService.setUser(tokenService.getUserByToken(UUID.fromString(loisirModel.getUserToken())));
+        newService.setType(typeService.getTypeByLibelle(TypeEnum.LOISIR.getLibelle()));
+        if(lieuService.lieuExist(loisirModel.getLieu())){
+            newService.setLieu(lieuService.getLieuByVille(loisirModel.getLieu()));
+        }else{
+            Lieu lieu = new Lieu();
+            lieu.setVille(loisirModel.getLieu());
+            Lieu lieuN = lieuRepository.save(lieu);
+            newService.setLieu(lieuN);
+        }
+        Service serviceReg = serviceRepository.save(newService);
+        Loisir newLoisir = new Loisir();
+
+        return null;
     }
 
 

@@ -17,6 +17,6 @@ public class CreateServiceModel {
     private Date dateEnd;
     private Long price;
     private String userToken;
-    private String lieuStr;
+    private String lieu;
 
 }
