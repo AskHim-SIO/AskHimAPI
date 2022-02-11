@@ -230,6 +230,7 @@ public class ServiceController {
         Service serviceReg = serviceRepository.save(newService);
         Course newCourse = new Course();
         newCourse.setAccompagnement(courseModel.getAccompagnement());
+        newCourse.setListeCourse(courseModel.getListeCourse());
         newCourse.setTypeLieu(courseModel.getTypeLieu());
         newCourse.setService(serviceReg);
         courseRepository.save(newCourse);
@@ -448,6 +449,7 @@ public class ServiceController {
         CourseModel serviceModel = mapper.map(service, CourseModel.class);
         Course course = courseService.getCourseByService(service);
         serviceModel.setAccompagnement(course.getAccompagnement());
+        serviceModel.setListeCourse(course.getListeCourse());
         serviceModel.setTypeLieu(course.getTypeLieu());
         return serviceModel;
     }

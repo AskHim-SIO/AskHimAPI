@@ -90,6 +90,7 @@ public class SeedController {
                 Course courseFaker = new Course();
                 courseFaker.setService(newServiceEntity);
                 courseFaker.setAccompagnement(faker.beer().name()); // TODO
+                courseFaker.setListeCourse(faker.beer().name()); // TODO
                 courseFaker.setTypeLieu(faker.beer().name()); // TODO
                 courseRepository.save(courseFaker);
             }

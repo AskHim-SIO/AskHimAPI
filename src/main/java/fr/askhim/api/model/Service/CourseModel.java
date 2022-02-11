@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class CourseModel extends ServiceModel{
     private String accompagnement;
+    private String listeCourse;
     private String typeLieu;
 
 }

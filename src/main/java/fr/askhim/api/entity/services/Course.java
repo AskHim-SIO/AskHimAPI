@@ -20,6 +20,9 @@ public class Course {
     private String accompagnement;
 
     @Column(nullable = false)
+    private String listeCourse;
+
+    @Column(nullable = false)
     private String typeLieu;
 
     @OneToOne
