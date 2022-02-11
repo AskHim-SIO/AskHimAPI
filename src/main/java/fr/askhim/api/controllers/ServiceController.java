@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 import static java.util.Collections.shuffle;
@@ -48,6 +49,9 @@ public class ServiceController {
 
     @Autowired
     private ServiceRepository serviceRepository;
+
+    @Autowired
+    private TacheMenagereRepository tacheMenagereRepository;
 
     @Autowired
     private TransportRepository transportRepository;
@@ -167,7 +171,7 @@ public class ServiceController {
 
 
     @PostMapping("/create-transport-service")
-    public ResponseEntity createTransportService(@RequestBody CreateTransportModel transportModel){
+    public String createTransportService(HttpServletResponse response, @RequestBody CreateTransportModel transportModel){
         Service newService = new Service();
         newService.setName(transportModel.getName());
         newService.setDescription(transportModel.getDescription());
@@ -197,11 +201,12 @@ public class ServiceController {
         newTransport.setMotif(transportModel.getMotif());
         newTransport.setService(serviceReg);
         transportRepository.save(newTransport);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "SERVICE_CREATED", "Le service a bien été enregistré !"));
+        response.setStatus(HttpStatus.CREATED.value(), "SERVICE_CREATED");
+        return serviceReg.getId() + "";
     }
 
     @PostMapping("/create-course-service")
-    public ResponseEntity createCourseService(@RequestBody CreateCourseModel courseModel){
+    public String createCourseService(HttpServletResponse response, @RequestBody CreateCourseModel courseModel){
         Service newService = new Service();
         newService.setName(courseModel.getName());
         newService.setDescription(courseModel.getDescription());
@@ -228,11 +233,12 @@ public class ServiceController {
         newCourse.setTypeLieu(courseModel.getTypeLieu());
         newCourse.setService(serviceReg);
         courseRepository.save(newCourse);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "SERVICE_CREATED", "Le service a bien été enregistré !"));
+        response.setStatus(HttpStatus.CREATED.value(), "SERVICE_CREATED");
+        return serviceReg.getId() + "";
     }
 
     @PostMapping("/create-formation-service")
-    public ResponseEntity createFormationService(@RequestBody CreateFormationModel formationModel){
+    public String createFormationService(HttpServletResponse response, @RequestBody CreateFormationModel formationModel){
         Service newService = new Service();
         newService.setName(formationModel.getName());
         newService.setDescription(formationModel.getDescription());
@@ -261,11 +267,12 @@ public class ServiceController {
         newFormation.setCompetence(formationModel.getCompetence());
         newFormation.setService(serviceReg);
         formationRepository.save(newFormation);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "SERVICE_CREATED", "Le service a bien été enregistré !"));
+        response.setStatus(HttpStatus.CREATED.value(), "SERVICE_CREATED");
+        return serviceReg.getId() + "";
     }
 
     @PostMapping("create-loisir-service")
-    public ResponseEntity createLoisirService(@RequestBody CreateLoisirModel loisirModel){
+    public String createLoisirService(HttpServletResponse response, @RequestBody CreateLoisirModel loisirModel){
         Service newService = new Service();
         newService.setName(loisirModel.getName());
         newService.setDescription(loisirModel.getDescription());
@@ -293,11 +300,12 @@ public class ServiceController {
         newLoisir.setJeu(loisirModel.getJeu());
         newLoisir.setService(serviceReg);
         loisirRepository.save(newLoisir);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "SERVICE_CREATED", "Le service a bien été enregistré !"));
+        response.setStatus(HttpStatus.CREATED.value(), "SERVICE_CREATED");
+        return serviceReg.getId() + "";
     }
 
     @PostMapping("/create-tachemenagere-service")
-    public ResponseEntity createTacheMenagereService(@RequestBody CreateTacheMenagereModel tacheMenagereModel){
+    public String createTacheMenagereService(HttpServletResponse response, @RequestBody CreateTacheMenagereModel tacheMenagereModel){
         Service newService = new Service();
         newService.setName(tacheMenagereModel.getName());
         newService.setDescription(tacheMenagereModel.getDescription());
@@ -320,8 +328,13 @@ public class ServiceController {
         }
         Service serviceReg = serviceRepository.save(newService);
         TacheMenagere newTacheMenagere = new TacheMenagere();
-
-        return null;
+        newTacheMenagere.setNbHeure(tacheMenagereModel.getNbHeure());
+        newTacheMenagere.setLibelle(tacheMenagereModel.getLibelle());
+        newTacheMenagere.setMateriel(tacheMenagereModel.getMateriel());
+        newTacheMenagere.setService(serviceReg);
+        tacheMenagereRepository.save(newTacheMenagere);
+        response.setStatus(HttpStatus.CREATED.value(), "SERVICE_CREATED");
+        return serviceReg.getId() + "";
     }
 
 
