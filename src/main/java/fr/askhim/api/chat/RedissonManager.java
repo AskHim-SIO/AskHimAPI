@@ -1,7 +1,9 @@
 package fr.askhim.api.chat;
 
+import fr.askhim.api.chat.entity.ChatManager;
 import fr.askhim.api.chat.entity.Discussion;
 import org.redisson.Redisson;
+import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
@@ -38,8 +40,23 @@ public class RedissonManager {
         System.out.println("[Redisson] Déconnexion de la base de données réussie !");
     }
 
-    public void test(){
+    // -------
 
+    public static ChatManager getChatManager(){
+        RBucket<ChatManager> chatManagerBucket = redissonClient.getBucket("chatmanager");
+        if(!chatManagerBucket.isExists()){
+            ChatManager chatManager = new ChatManager();
+            chatManagerBucket.set(chatManager);
+        }
+        return chatManagerBucket.get();
+    }
+
+    public static String dumpRedis(){
+        RBucket<ChatManager> chatManagerBucket = redissonClient.getBucket("chatmanager");
+        if(chatManagerBucket.isExists()){
+            chatManagerBucket.delete();
+        }
+        return "Redis dump !";
     }
 
 }
