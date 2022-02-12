@@ -12,7 +12,7 @@ import java.util.UUID;
 public class ChatController {
 
     @PostMapping("/init-chat")
-    public String initChat(HttpServletResponse response, long serviceId, UUID userToken){
+    public String initChat(HttpServletResponse response, @RequestParam Long serviceId, @RequestParam UUID userToken){
 
         return "Test";
     }
