@@ -49,6 +49,12 @@ public class User{
 	@Column
 	private String profilPicture;
 
+	@Column(columnDefinition="tinyint(1) default 0")
+	private Boolean isAdmin;
+
+	@Column()
+	@Temporal(TemporalType.DATE)
+	private Date deleteDate;
 	@ManyToMany
 	@JoinTable(
 			name = "Favoris",

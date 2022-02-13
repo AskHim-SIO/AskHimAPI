@@ -1,10 +1,10 @@
 package fr.askhim.api.controllers;
 
+import fr.askhim.api.entity.Token;
+import fr.askhim.api.entity.User;
 import fr.askhim.api.model.AuthModel.RegisterModel;
 import fr.askhim.api.model.TokenModel;
 import fr.askhim.api.model.UserModel;
-import fr.askhim.api.entity.Token;
-import fr.askhim.api.entity.User;
 import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.payload.UserRequest;
 import fr.askhim.api.repository.TokenRepository;
@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,16 +39,22 @@ public class UserController {
     private ModelMapper mapper = new ModelMapper();
 
 
-    public UserController(UserService userService){
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
 
+    @GetMapping("/get-all-users")
+    public List<UserModel> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        List<UserModel> usersModel = new ArrayList<>();
 
-    /*@GetMapping("/get-users")
-    public List<User> getUsers() {
-        return userRepository.findAll();
-    }*/
+        users.forEach(user -> {
+            if (user.getDeleteDate() == null)
+                usersModel.add(mapToDTO(user));
+        });
+        return usersModel;
+    }
 
     @GetMapping("/get-user/{token}")
     public Object getUserProfile(@PathVariable String token) {
@@ -58,14 +66,16 @@ public class UserController {
 
         Token userTok = tokenRes.get();
         User user = userTok.getUser();
+        if (user.getDeleteDate() == null)
+            return mapToDTO(user);
 
-        return mapToDTO(user);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, "UNKNOWN_TOKEN", "L'utilisateur spécifié n'existe plus"));
     }
 
     @PostMapping("/create-user")
     public ResponseEntity createUser(@RequestBody RegisterModel user) {
 
-        if(userService.userExist(user.getEmail())){
+        if (userService.userExist(user.getEmail())) {
             // 409
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(false, "USER_ALREADY_EXIST", "Un compte est déjà créé avec cette adresse email."));
         }
@@ -113,13 +123,16 @@ public class UserController {
             // 404
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "USER_NOT_FOUND", "L'utilisateur n'a pas été trouvé"));
         }
-        userRepository.delete(userResearch.get());
+        Date date = new Date();
+
+        User userEnt = userResearch.get();
+        userEnt.setDeleteDate(date);
+
+        userRepository.save(userEnt);
+
         // 200
-        return ResponseEntity.ok().body(new ApiResponse(true, "USER_DELETED","L'utilisateur a été supprimé."));
+        return ResponseEntity.ok().body(new ApiResponse(true, "USER_DELETED", "L'utilisateur a été supprimé."));
     }
-
-
-
 
 
     // MAPPING
