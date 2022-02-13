@@ -44,6 +44,10 @@ public class Service {
     @Temporal(TemporalType.DATE)
     private Date postDate;
 
+    @Column()
+    @Temporal(TemporalType.DATE)
+    private Date deleteDate;
+
     //mettre en favoris
     @ManyToMany(mappedBy = "favoris")
     Set<User> favorites_by;

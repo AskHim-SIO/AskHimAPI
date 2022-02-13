@@ -89,10 +89,25 @@ public class ServiceController {
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
         services.forEach(service -> {
-            serviceModels.add(serviceMinMapToDTO(service));
+            if (service.getDeleteDate() == null) {
+                serviceModels.add(serviceMinMapToDTO(service));
+            }
         });
 
         shuffle(serviceModels);
+        return serviceModels;
+    }
+
+    @GetMapping("/get-all-services")
+    public List<ServiceMinModel> getAllServices() {
+        List<Service> services = serviceRepository.findAll();
+        List<ServiceMinModel> serviceModels = new ArrayList<>();
+
+        services.forEach(service -> {
+            if (service.getDeleteDate() == null) {
+                serviceModels.add(serviceMinMapToDTO(service));
+            }
+        });
         return serviceModels;
     }
 
@@ -101,7 +116,13 @@ public class ServiceController {
         if(!serviceService.serviceExist(id)){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le service spécifié n'existe pas"));
         }
+
         Service service = serviceService.getServiceById(id);
+
+        if(service.getDeleteDate() !=null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le service a été supprimé"));
+        }
+
         TypeEnum serviceType = serviceService.getType(service);
         switch(serviceType){
             case TRANSPORT:
@@ -134,7 +155,9 @@ public class ServiceController {
         List<Service> services = serviceService.getServicesByUser(userRecp);
         List<ServiceMinModel> servicesMinModel = new ArrayList<>();
         for(Service service : services){
-            servicesMinModel.add(serviceMinMapToDTO(service));
+            if(service.getDeleteDate() == null){
+                servicesMinModel.add(serviceMinMapToDTO(service));
+            }
         }
         return servicesMinModel;
     }
@@ -150,7 +173,9 @@ public class ServiceController {
             List<ServiceMinModel> servicesMinModel = new ArrayList<>();
 
             for(Service service : services){
-                servicesMinModel.add(serviceMinMapToDTO(service));
+                if(service.getDeleteDate() == null){
+                    servicesMinModel.add(serviceMinMapToDTO(service));
+                }
             }
 
             return servicesMinModel;
@@ -163,7 +188,9 @@ public class ServiceController {
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
         serviceEntities.forEach(service -> {
-            serviceModels.add(serviceMinMapToDTO(service));
+            if (service.getDeleteDate() == null) {
+                serviceModels.add(serviceMinMapToDTO(service));
+            }
         });
 
         return serviceModels;
