@@ -3,12 +3,14 @@ package fr.askhim.api.controllers;
 import fr.askhim.api.chat.RedissonManager;
 import fr.askhim.api.chat.entity.ChatManager;
 import fr.askhim.api.chat.entity.Discussion;
+import fr.askhim.api.chat.entity.Message;
 import fr.askhim.api.chat.model.DiscussionModel;
 import fr.askhim.api.chat.model.MessageModel;
 import fr.askhim.api.entity.Service;
 import fr.askhim.api.entity.User;
 import fr.askhim.api.model.ServiceMinModel;
 import fr.askhim.api.model.UserModel;
+import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.services.ServiceService;
 import fr.askhim.api.services.TokenService;
 import fr.askhim.api.services.UserService;
@@ -16,6 +18,7 @@ import org.modelmapper.ModelMapper;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -75,6 +78,23 @@ public class ChatController {
         return discussionModel;
     }
 
+    @PostMapping("/post-message")
+    public ResponseEntity postMessage(@RequestParam UUID discussionId, @RequestParam UUID userToken, @RequestParam String message){
+        ChatManager chatManager = RedissonManager.getChatManager();
+        if(!chatManager.discussionExist(discussionId)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_DISCUSSION", "La discussion n'a pas été trouvée"));
+        }
+        RBucket<Discussion> discussionBucket = RedissonManager.getRedissonClient().getBucket("discussion_" + discussionId.toString());
+        Discussion discussion = discussionBucket.get();
+        User user = tokenService.getUserByToken(userToken);
+        Message newMessage = new Message(user.getId(), discussion.getUuid(), message);
+        discussion.getMessages().add(newMessage.getUuid());
+        RBucket<Message> messageBucket = RedissonManager.getRedissonClient().getBucket("message_" + newMessage.getUuid());
+        messageBucket.set(newMessage);
+        discussionBucket.set(discussion);
+        return null;
+    }
+
     @GetMapping("/test")
     public String test(){
         return "";
@@ -93,7 +113,7 @@ public class ChatController {
         discussionModel.setService(serviceModel);
         List<MessageModel> messages = new ArrayList<>();
         for(UUID messageUuid : discussion.getMessages()){
-
+            RBucket<Message> messageBucket = RedissonManager.getRedissonClient()
         }
         discussionModel.setMessages(messages);
         List<UserModel> users = new ArrayList<>();
