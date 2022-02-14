@@ -56,6 +56,13 @@ public class UserController {
         return usersModel;
     }
 
+    @GetMapping("/nb-users")
+    public int   NbUsers() {
+        List<User> users = userRepository.findAll();
+        int   cpt = (int) users.stream().filter(user -> user.getDeleteDate() == null).count();
+        return cpt;
+    }
+
     @GetMapping("/get-user/{token}")
     public Object getUserProfile(@PathVariable String token) {
         Optional<Token> tokenRes = tokenRepository.findById(token);
@@ -98,20 +105,26 @@ public class UserController {
         return ResponseEntity.created(location).body(new ApiResponse(true, "USER_CREATED", "L'utilisateur a été crée."));
     }
 
-    @PutMapping("/update-user/{id}")
-    public ResponseEntity updateUser(@RequestBody UserRequest request, @PathVariable Long id) {
-        Optional<User> user = userRepository.findById(id);
-        if (!user.isPresent()) {
+    @PutMapping("/update-user/{token}")
+    public ResponseEntity updateUser(@RequestBody UserRequest request, @PathVariable String token) {
+
+        Optional<Token> tokenRes = tokenRepository.findById(token);
+        if (!tokenRes.isPresent()) {
             // 404
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "USER_NOT_FOUND", "L'utilisateur n'a pas été trouvé"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
         }
 
-        User userEnt = user.get();
+        Token userTok = tokenRes.get();
+        User user = userTok.getUser();
 
-        userEnt.setName(request.name);
-        userEnt.setFirstname(request.firstname);
+        user.setName(request.name);
+        user.setFirstname(request.firstname);
+        user.setAdress(request.adress);
+        user.setEmail(request.email);
+        user.setDateNaiss(request.dateNaiss);
+        user.setTel(request.tel);
 
-        userRepository.save(userEnt);
+        userRepository.save(user);
         // 200
         return ResponseEntity.ok().body(new ApiResponse(true, "USER_UPDATED", "L'utilisateur a été mis à jour."));
     }

@@ -11,6 +11,7 @@ public class UserModel {
     private String name;
     private String firstname;
     private String profilPicture;
-    
+    private boolean isAdmin;
+
 
 }
