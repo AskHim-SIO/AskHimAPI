@@ -4,14 +4,23 @@ import fr.askhim.api.chat.RedissonManager;
 import fr.askhim.api.chat.entity.ChatManager;
 import fr.askhim.api.chat.entity.Discussion;
 import fr.askhim.api.chat.model.DiscussionModel;
+import fr.askhim.api.chat.model.MessageModel;
+import fr.askhim.api.entity.Service;
+import fr.askhim.api.entity.User;
+import fr.askhim.api.model.ServiceMinModel;
+import fr.askhim.api.model.UserModel;
 import fr.askhim.api.services.ServiceService;
 import fr.askhim.api.services.TokenService;
+import fr.askhim.api.services.UserService;
+import org.modelmapper.ModelMapper;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -20,10 +29,14 @@ public class ChatController {
 
     private final ServiceService serviceService;
     private final TokenService tokenService;
+    private final UserService userService;
 
-    public ChatController(ServiceService serviceService, TokenService tokenService){
+    private ModelMapper mapper = new ModelMapper();
+
+    public ChatController(ServiceService serviceService, TokenService tokenService, UserService userService){
         this.serviceService = serviceService;
         this.tokenService = tokenService;
+        this.userService = userService;
     }
 
     @PostMapping("/init-discussion")
@@ -37,14 +50,29 @@ public class ChatController {
         long authorServiceId = serviceService.getServiceById(serviceId).getUser().getId();
         Discussion discussion = chatManager.createDiscussion(serviceId, authorServiceId, userId);
         RedissonManager.updateChatManager(chatManager);
-        RBucket<Discussion> discussionsBucket = RedissonManager.getRedissonClient().getBucket("discussion_" + serviceId + "_" + userId);
+        RBucket<Discussion> discussionsBucket = RedissonManager.getRedissonClient().getBucket("discussion_" + discussion.getUuid());
         discussionsBucket.set(discussion);
         return discussion.getUuid().toString();
     }
 
     @GetMapping("/get-discussion-by-id/{discussionId}")
-    public DiscussionModel getDiscussion(HttpServletResponse response, @PathVariable String discussionId){
-        return null;
+    public DiscussionModel getDiscussionById(HttpServletResponse response, @PathVariable String discussionId){
+        UUID uuid = null;
+        try {
+            uuid = UUID.fromString(discussionId);
+        }catch(Exception e){
+            response.setStatus(HttpStatus.BAD_REQUEST.value(), "INCORRECT_UUID");
+            return null;
+        }
+        ChatManager chatManager = RedissonManager.getChatManager();
+        if(!chatManager.discussionExist(uuid)){
+            response.setStatus(HttpStatus.NOT_FOUND.value(), "UNKNOWN_DISCUSSION");
+            return null;
+        }
+        RBucket<Discussion> discussionBucket = RedissonManager.getRedissonClient().getBucket("discussion_" + uuid.toString());
+        Discussion discussion = discussionBucket.get();
+        DiscussionModel discussionModel = convertToDiscussionModel(discussion);
+        return discussionModel;
     }
 
     @GetMapping("/test")
@@ -55,6 +83,27 @@ public class ChatController {
     @DeleteMapping("/dump-redis")
     public String dumpRedis(){
         return RedissonManager.dumpRedis();
+    }
+
+    private DiscussionModel convertToDiscussionModel(Discussion discussion){
+        DiscussionModel discussionModel = new DiscussionModel();
+        discussionModel.setUuid(discussion.getUuid());
+        Service service = serviceService.getServiceById(discussion.getServiceId());
+        ServiceMinModel serviceModel = mapper.map(service, ServiceMinModel.class);
+        discussionModel.setService(serviceModel);
+        List<MessageModel> messages = new ArrayList<>();
+        for(UUID messageUuid : discussion.getMessages()){
+
+        }
+        discussionModel.setMessages(messages);
+        List<UserModel> users = new ArrayList<>();
+        for(Long userId : discussion.getUsersId()){
+            User user = userService.getUserById(userId);
+            UserModel userModel = mapper.map(user, UserModel.class);
+            users.add(userModel);
+        }
+        discussionModel.setUsers(users);
+        return discussionModel;
     }
 
 }

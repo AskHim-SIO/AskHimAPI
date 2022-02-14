@@ -23,6 +23,10 @@ public class Discussion {
         this.usersId = usersId;
     }
 
+    public Discussion(){
+
+    }
+
     public List<UUID> getMessages(){
         return messages;
     }
