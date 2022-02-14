@@ -111,6 +111,14 @@ public class ServiceController {
         return serviceModels;
     }
 
+    @GetMapping("/nb-services")
+    public int   NbServices() {
+        List<Service> services = serviceRepository.findAll();
+        int   cpt = (int) services.stream().filter(service -> service.getDeleteDate() == null).count();
+        return cpt;
+    }
+
+
     @GetMapping("/get-service/{id}")
     public Object getService(@PathVariable Long id){
         if(!serviceService.serviceExist(id)){

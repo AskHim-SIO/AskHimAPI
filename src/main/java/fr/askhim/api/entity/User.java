@@ -50,7 +50,7 @@ public class User{
 	private String profilPicture;
 
 	@Column(columnDefinition="tinyint(1) default 0")
-	private Boolean isAdmin;
+	private boolean isAdmin;
 
 	@Column()
 	@Temporal(TemporalType.DATE)
