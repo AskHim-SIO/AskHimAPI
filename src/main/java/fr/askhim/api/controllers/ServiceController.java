@@ -85,7 +85,7 @@ public class ServiceController {
 
     @GetMapping("/get-services")
     public List<ServiceMinModel> getServices() {
-        Page<Service> services = serviceRepository.findAll(Pageable.ofSize(20));
+        Page<Service> services = serviceRepository.findAll(Pageable.ofSize(100));
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
         services.forEach(service -> {
@@ -192,7 +192,7 @@ public class ServiceController {
     @GetMapping("/get-recent-services")
     public List<ServiceMinModel> getRecentServices() {
         //todo tester l'ordre recent
-        List<Service> serviceEntities = serviceRepository.findTop20ByOrderByPostDateDesc();
+        List<Service> serviceEntities = serviceRepository.findTop20ByOrderByPostDateAsc();
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
         serviceEntities.forEach(service -> {

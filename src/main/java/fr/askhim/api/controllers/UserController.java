@@ -117,8 +117,8 @@ public class UserController {
         Token userTok = tokenRes.get();
         User user = userTok.getUser();
 
-        user.setName(request.name);
         user.setFirstname(request.firstname);
+        user.setFirstname(request.name);
         user.setAdress(request.adress);
         user.setEmail(request.email);
         user.setDateNaiss(request.dateNaiss);
