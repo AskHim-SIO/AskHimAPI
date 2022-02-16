@@ -85,6 +85,7 @@ public class UserController {
        return mapToDTO(userService.getUserById(id));
     }
 
+    @CrossOrigin(origins = "*")
     @PostMapping("/create-user")
     public ResponseEntity createUser(@RequestBody RegisterModel registerModel) {
 
