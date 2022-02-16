@@ -57,16 +57,14 @@ public class UserController {
         return usersModel;
     }
 
-    @GetMapping("/nb-users")
-    public int   NbUsers() {
-        List<User> users = userRepository.findAll();
-        int   cpt = (int) users.stream().filter(user -> user.getDeleteDate() == null).count();
-        return cpt;
+    @GetMapping("/get-nb-users-activated")
+    public int getNbUsersActivated() {
+        return userService.getNbUserActivated();
     }
 
     @GetMapping("/get-user/{token}")
-    public Object getUserProfile(@PathVariable String token) {
-        Optional<Token> tokenRes = tokenRepository.findById(token);
+    public Object getUserByToken(@PathVariable UUID token) {
+        Optional<Token> tokenRes = tokenRepository.findById(token.toString());
         if (!tokenRes.isPresent()) {
             // 404
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
@@ -80,10 +78,18 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, "UNKNOWN_TOKEN", "L'utilisateur spécifié n'existe plus"));
     }
 
+    @GetMapping("/get-user/{id}")
+    public Object getUserById(@PathVariable Long id) {
+       if(!userService.userExistById(id)){
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_USER", "Cet utilisateur n'existe pas"));
+       }
+       return mapToDTO(userService.getUserById(id));
+    }
+
     @PostMapping("/create-user")
     public ResponseEntity createUser(@RequestBody RegisterModel user) {
 
-        if (userService.userExist(user.getEmail())) {
+        if (userService.userExistByEmail(user.getEmail())) {
             // 409
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(false, "USER_ALREADY_EXIST", "Un compte est déjà créé avec cette adresse email."));
         }
