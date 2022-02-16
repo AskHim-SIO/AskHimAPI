@@ -206,10 +206,10 @@ public class SeedController {
                 userFake.setPassword(passwordEncoder.encode("azerty"));
                 userFake.setEmail(faker.internet().emailAddress());
                 userFake.setTel(0605040302L);
-                userFake.setAdress(faker.address().fullAddress());
+                userFake.setAddress(faker.address().fullAddress());
                 userFake.setDateNaiss(faker.date().birthday(18, 100));
-                userFake.setCredit((long) new Random().nextInt(1000));
-                userFake.setProfilPicture(faker.avatar().image());
+                userFake.setCredit((long) new Random().nextInt(500));
+                userFake.setProfilPicture("http://cdn.askhim.ctrempe.fr/defaultUser.png");
                 userRepository.save(userFake);
             }
             return "[OK] Utilisateurs ajoutés";

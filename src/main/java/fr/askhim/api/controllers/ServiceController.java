@@ -191,17 +191,26 @@ public class ServiceController {
 
     @GetMapping("/get-recent-services")
     public List<ServiceMinModel> getRecentServices() {
-        List<Service> serviceEntities = serviceRepository.findAll();
-//        serviceEntities.sort(ad);
+        List<Service> serviceEntities = serviceRepository.findTop20ByOrderByPostDateDesc();
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
-        serviceEntities.forEach(service -> {
+        for(Service service : serviceEntities){
             if (service.getDeleteDate() == null && service.getState()) {
                 serviceModels.add(serviceMinMapToDTO(service));
             }
-        });
+        }
 
         return serviceModels;
+    }
+
+    @GetMapping("/search-services")
+    public List<ServiceMinModel> searchServices(@RequestParam String query, @RequestParam(required = false) int count){
+        List<Service> services = serviceRepository.findByNameContains(query);
+        List<ServiceMinModel> servicesModel = new ArrayList<>();
+        for(Service service : services){
+            servicesModel.add(serviceMinMapToDTO(service));
+        }
+        return servicesModel;
     }
 
 

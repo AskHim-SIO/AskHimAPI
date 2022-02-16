@@ -12,6 +12,7 @@ import java.util.List;
 public interface ServiceRepository extends JpaRepository<Service, Long> {
 
     List<Service> findByType(Type type);
-    List<Service> findTop20ByOrderByPostDateAsc();
+    List<Service> findTop20ByOrderByPostDateDesc();
     List<Service> findByUser(User user);
+    List<Service> findByNameContains(String name);
 }

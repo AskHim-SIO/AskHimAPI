@@ -37,20 +37,20 @@ public class User{
 	private Long tel;
 
 	@Column()
-	private String adress;
+	private String address;
 
 	@Column()
 	@Temporal(TemporalType.DATE)
 	private Date dateNaiss;
 
-	@Column(columnDefinition = "long default 0")
+	@Column(columnDefinition = "bigint default 10")
 	private Long credit;
 
-	@Column
+	@Column()
 	private String profilPicture;
 
 	@Column(columnDefinition="tinyint(1) default 0")
-	private boolean isAdmin;
+	private boolean admin;
 
 	@Column()
 	@Temporal(TemporalType.DATE)

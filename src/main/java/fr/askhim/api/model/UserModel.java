@@ -13,10 +13,11 @@ public class UserModel {
     private String name;
     private String firstname;
     private String profilPicture;
-    private boolean isAdmin;
-    public String email;
-    public Long tel;
-    public String adress;
-    public Date dateNaiss;
+    private boolean admin;
+    private String email;
+    private Long tel;
+    private String address;
+    private Date dateNaiss;
+    private Long credit;
 
 }

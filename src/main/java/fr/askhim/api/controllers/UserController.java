@@ -6,7 +6,6 @@ import fr.askhim.api.model.AuthModel.RegisterModel;
 import fr.askhim.api.model.TokenModel;
 import fr.askhim.api.model.UserModel;
 import fr.askhim.api.payload.ApiResponse;
-import fr.askhim.api.payload.UserRequest;
 import fr.askhim.api.repository.TokenRepository;
 import fr.askhim.api.repository.UserRepository;
 import fr.askhim.api.services.TokenService;
@@ -62,7 +61,7 @@ public class UserController {
         return userService.getNbUserActivated();
     }
 
-    @GetMapping("/get-user/{token}")
+    @GetMapping("/get-user-by-token/{token}")
     public Object getUserByToken(@PathVariable UUID token) {
         Optional<Token> tokenRes = tokenRepository.findById(token.toString());
         if (!tokenRes.isPresent()) {
@@ -78,7 +77,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, "UNKNOWN_TOKEN", "L'utilisateur spécifié n'existe plus"));
     }
 
-    @GetMapping("/get-user/{id}")
+    @GetMapping("/get-user-by-id/{id}")
     public Object getUserById(@PathVariable Long id) {
        if(!userService.userExistById(id)){
            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_USER", "Cet utilisateur n'existe pas"));
@@ -87,32 +86,29 @@ public class UserController {
     }
 
     @PostMapping("/create-user")
-    public ResponseEntity createUser(@RequestBody RegisterModel user) {
+    public ResponseEntity createUser(@RequestBody RegisterModel registerModel) {
 
-        if (userService.userExistByEmail(user.getEmail())) {
-            // 409
+        if (userService.userExistByEmail(registerModel.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(false, "USER_ALREADY_EXIST", "Un compte est déjà créé avec cette adresse email."));
         }
 
-        User userEnt = new User();
-
+        User user = new User();
+        user.setName(registerModel.getName());
+        user.setFirstname(registerModel.getFirstname());
+        user.setEmail(registerModel.getEmail());
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(registerModel.getPassword()));
+        user.setDateNaiss(registerModel.getDateNaiss());
+        user.setCredit(10L);
+        user.setProfilPicture("http://cdn.askhim.ctrempe.fr/defaultUser.png");
 
 
-        User result = userRepository.save(DTOToMapForRegister(user));
+        userRepository.save(user);
 
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(result.getId())
-                .toUri();
-
-        // 201
-        return ResponseEntity.created(location).body(new ApiResponse(true, "USER_CREATED", "L'utilisateur a été crée."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "USER_CREATED", "L'utilisateur a été crée."));
     }
 
-    @PutMapping("/update-user/{token}")
+    /*@PutMapping("/update-user/{token}")
     public ResponseEntity updateUser(@RequestBody UserRequest request, @PathVariable UUID token) {
 
         Optional<Token> tokenRes = tokenRepository.findById(token.toString());
@@ -135,6 +131,17 @@ public class UserController {
         userRepository.save(user);
         // 200
         return ResponseEntity.ok().body(new ApiResponse(true, "USER_UPDATED", "L'utilisateur a été mis à jour."));
+    }*/
+
+    @PutMapping("/update-user/{token}")
+    public Object updateUser(@PathVariable UUID token, @RequestBody UserModel userModel){
+        if(!tokenService.tokenExist(token)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
+        }
+        System.out.println("Test");
+        User user = DTOToUser(userModel);
+        userRepository.save(user);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponse(true, "USER_UPDATED", "Le profil de l'utilisateur a été mis à jour avec succès"));
     }
 
     @DeleteMapping("/delete-user/{id}")
@@ -169,6 +176,20 @@ public class UserController {
 
     private User DTOToMapForRegister(RegisterModel userModel) {
         User user = mapper.map(userModel, User.class);
+        return user;
+    }
+
+    private User DTOToUser(UserModel userModel){
+        User user = userService.getUserById(userModel.getId());
+        user.setName(userModel.getName());
+        user.setFirstname(userModel.getFirstname());
+        user.setProfilPicture(userModel.getProfilPicture());
+        user.setAdmin(userModel.isAdmin());
+        user.setEmail(userModel.getEmail());
+        user.setTel(userModel.getTel());
+        user.setAddress(userModel.getAddress());
+        user.setDateNaiss(userModel.getDateNaiss());
+        user.setCredit(userModel.getCredit());
         return user;
     }
 }
