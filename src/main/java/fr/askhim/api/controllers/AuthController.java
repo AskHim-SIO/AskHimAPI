@@ -37,7 +37,7 @@ public class AuthController {
     @PostMapping("login")
     public String loginUser(HttpServletResponse response, @RequestBody LoginModel request) {
         boolean checkPass = true;
-        if(!userService.userExist(request.getEmail())){
+        if(!userService.userExistByEmail(request.getEmail())){
             checkPass = false;
         }
         if(checkPass){
