@@ -68,10 +68,11 @@ public class ServiceController {
     private final TokenService tokenService;
     private final TransportService transportService;
     private final TypeService typeService;
+    private final UserService userService;
 
     private ModelMapper mapper = new ModelMapper();
 
-    public ServiceController(CourseService courseService, FormationService formationService, LieuService lieuService, LoisirService loisirService, ServiceService serviceService, TacheMenagereService tacheMenagereService, TokenService tokenService, TransportService transportService, TypeService typeService){
+    public ServiceController(CourseService courseService, FormationService formationService, LieuService lieuService, LoisirService loisirService, ServiceService serviceService, TacheMenagereService tacheMenagereService, TokenService tokenService, TransportService transportService, TypeService typeService, UserService userService){
         this.courseService = courseService;
         this.formationService = formationService;
         this.lieuService = lieuService;
@@ -81,6 +82,7 @@ public class ServiceController {
         this.tokenService = tokenService;
         this.transportService = transportService;
         this.typeService = typeService;
+        this.userService = userService;
     }
 
     @GetMapping("/get-services")
@@ -89,7 +91,7 @@ public class ServiceController {
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
         services.forEach(service -> {
-            if (service.getDeleteDate() == null && service.getState()) {
+            if (service.getDeleteDate() == null && service.isState()) {
                 serviceModels.add(serviceMinMapToDTO(service));
             }
         });
@@ -104,7 +106,7 @@ public class ServiceController {
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
         services.forEach(service -> {
-            if (service.getDeleteDate() == null && service.getState()) {
+            if (service.getDeleteDate() == null && service.isState()) {
                 serviceModels.add(serviceMinMapToDTO(service));
             }
         });
@@ -127,7 +129,7 @@ public class ServiceController {
 
         Service service = serviceService.getServiceById(id);
 
-        if(service.getDeleteDate() != null && !service.getState()){
+        if(service.getDeleteDate() != null && !service.isState()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le service a été supprimé"));
         }
 
@@ -153,8 +155,8 @@ public class ServiceController {
         }
     }
 
-    @GetMapping("/get-services-from-user/{token}")
-    public Object getServicesFromUser(@PathVariable UUID token){
+    @GetMapping("/get-services-from-user-by-token/{token}")
+    public Object getServicesFromUserByToken(@PathVariable UUID token){
         if(!tokenService.tokenExist(token)){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
         }
@@ -163,11 +165,27 @@ public class ServiceController {
         List<Service> services = serviceService.getServicesByUser(userRecp);
         List<ServiceMinModel> servicesMinModel = new ArrayList<>();
         for(Service service : services){
-            if(service.getDeleteDate() == null && service.getState()){
+            if(service.getDeleteDate() == null && service.isState()){
                 servicesMinModel.add(serviceMinMapToDTO(service));
             }
         }
         return servicesMinModel;
+    }
+
+    @GetMapping("/get-services-from-user-by-id/{id}")
+    public Object getServicesFromUserById(@PathVariable Long id){
+        if(!userService.userExistById(id)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_USER", "L'utilisateur spécifié n'existe pas"));
+        }
+        User user = userService.getUserById(id);
+        List<Service> services = serviceService.getServicesByUser(user);
+        List<ServiceMinModel> servicesModel = new ArrayList<>();
+        for(Service service : services){
+            if(service.getDeleteDate() == null && service.isState()){
+                servicesModel.add(serviceMinMapToDTO(service));
+            }
+        }
+        return servicesModel;
     }
 
     @GetMapping("/get-services-from-type/{typeId}")
@@ -181,7 +199,7 @@ public class ServiceController {
             List<ServiceMinModel> servicesMinModel = new ArrayList<>();
 
             for(Service service : services){
-                if(service.getDeleteDate() == null && service.getState()){
+                if(service.getDeleteDate() == null && service.isState()){
                     servicesMinModel.add(serviceMinMapToDTO(service));
                 }
             }
@@ -195,7 +213,7 @@ public class ServiceController {
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
         for(Service service : serviceEntities){
-            if (service.getDeleteDate() == null && service.getState()) {
+            if (service.getDeleteDate() == null && service.isState()) {
                 serviceModels.add(serviceMinMapToDTO(service));
             }
         }
