@@ -89,7 +89,7 @@ public class ServiceController {
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
         services.forEach(service -> {
-            if (service.getDeleteDate() == null) {
+            if (service.getDeleteDate() == null && service.getState()) {
                 serviceModels.add(serviceMinMapToDTO(service));
             }
         });
@@ -104,7 +104,7 @@ public class ServiceController {
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
         services.forEach(service -> {
-            if (service.getDeleteDate() == null) {
+            if (service.getDeleteDate() == null && service.getState()) {
                 serviceModels.add(serviceMinMapToDTO(service));
             }
         });
@@ -127,7 +127,7 @@ public class ServiceController {
 
         Service service = serviceService.getServiceById(id);
 
-        if(service.getDeleteDate() !=null){
+        if(service.getDeleteDate() != null && !service.getState()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le service a été supprimé"));
         }
 
@@ -163,7 +163,7 @@ public class ServiceController {
         List<Service> services = serviceService.getServicesByUser(userRecp);
         List<ServiceMinModel> servicesMinModel = new ArrayList<>();
         for(Service service : services){
-            if(service.getDeleteDate() == null){
+            if(service.getDeleteDate() == null && service.getState()){
                 servicesMinModel.add(serviceMinMapToDTO(service));
             }
         }
@@ -181,7 +181,7 @@ public class ServiceController {
             List<ServiceMinModel> servicesMinModel = new ArrayList<>();
 
             for(Service service : services){
-                if(service.getDeleteDate() == null){
+                if(service.getDeleteDate() == null && service.getState()){
                     servicesMinModel.add(serviceMinMapToDTO(service));
                 }
             }
@@ -191,12 +191,12 @@ public class ServiceController {
 
     @GetMapping("/get-recent-services")
     public List<ServiceMinModel> getRecentServices() {
-        //todo tester l'ordre recent
-        List<Service> serviceEntities = serviceRepository.findTop20ByOrderByPostDateAsc();
+        List<Service> serviceEntities = serviceRepository.findAll();
+//        serviceEntities.sort(ad);
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
         serviceEntities.forEach(service -> {
-            if (service.getDeleteDate() == null) {
+            if (service.getDeleteDate() == null && service.getState()) {
                 serviceModels.add(serviceMinMapToDTO(service));
             }
         });

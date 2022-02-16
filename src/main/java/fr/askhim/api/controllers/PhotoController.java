@@ -89,7 +89,7 @@ public class PhotoController {
         if(!tokenService.tokenExist(UUID.fromString(token))){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le token spécifié n'existe pas"));
         }
-        User user = tokenService.getUserByToken(UUID.fromString(token));
+        User user = tokenService.getUserByToken(token);
 
         String pathOrigin = "/var/www/html/cdn/";
         String pathBuild = pathOrigin;
@@ -102,5 +102,4 @@ public class PhotoController {
         userRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "PHOTO_SAVED", "La photo à été modifié avec succès !"));
     }
-
 }

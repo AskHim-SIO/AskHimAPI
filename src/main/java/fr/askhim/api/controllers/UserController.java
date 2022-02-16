@@ -9,6 +9,7 @@ import fr.askhim.api.payload.ApiResponse;
 import fr.askhim.api.payload.UserRequest;
 import fr.askhim.api.repository.TokenRepository;
 import fr.askhim.api.repository.UserRepository;
+import fr.askhim.api.services.TokenService;
 import fr.askhim.api.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/user")
@@ -36,11 +34,14 @@ public class UserController {
 
     private final UserService userService;
 
+    private final TokenService tokenService;
+
     private ModelMapper mapper = new ModelMapper();
 
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, TokenService tokenService) {
         this.userService = userService;
+        this.tokenService = tokenService;
     }
 
 
@@ -106,19 +107,20 @@ public class UserController {
     }
 
     @PutMapping("/update-user/{token}")
-    public ResponseEntity updateUser(@RequestBody UserRequest request, @PathVariable String token) {
+    public ResponseEntity updateUser(@RequestBody UserRequest request, @PathVariable UUID token) {
 
-        Optional<Token> tokenRes = tokenRepository.findById(token);
+        Optional<Token> tokenRes = tokenRepository.findById(token.toString());
         if (!tokenRes.isPresent()) {
             // 404
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
         }
 
-        Token userTok = tokenRes.get();
-        User user = userTok.getUser();
+        User user = tokenService.getUserByToken(token);
+
+
 
         user.setFirstname(request.firstname);
-        user.setFirstname(request.name);
+        user.setName(request.name);
         user.setAdress(request.adress);
         user.setEmail(request.email);
         user.setDateNaiss(request.dateNaiss);
