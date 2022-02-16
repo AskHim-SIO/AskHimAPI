@@ -41,7 +41,7 @@ public class Service {
     private Long price;
 
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date postDate;
 
     @Column()
