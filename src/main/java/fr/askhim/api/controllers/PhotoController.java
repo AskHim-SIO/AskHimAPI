@@ -99,16 +99,18 @@ public class PhotoController {
         if(!serviceService.serviceExist(serviceId)){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le service spécifié n'existe pas"));
         }
+        String prefixBaseImage = photoBody.getFileStr().split(",")[0];
+        String extension = prefixBaseImage.replace("data:image/", "");
+        extension = extension.replace(";base64", "");
+        String base64Image = photoBody.getFileStr().split(",")[1];
         String pathOrigin = "/var/www/html/cdn/";
         UUID uuid = UUID.randomUUID();
-        String fileNameBuild = uuid + ".jpg";
+        String fileNameBuild = uuid + "." + extension;
         String pathBuild = pathOrigin + fileNameBuild;
-        // -----
-        byte[] imgByteArray = Base64.decodeBase64(photoBody.getFileStr());
+        byte[] imgByteArray = Base64.decodeBase64(base64Image);
         FileOutputStream imgOutFile = new FileOutputStream(pathBuild);
         imgOutFile.write(imgByteArray);
         imgOutFile.close();
-        // ----
         Service service = serviceService.getServiceById(serviceId);
         Photo photo = new Photo();
         photo.setLibelle("http://cdn.askhim.ctrempe.fr/" + fileNameBuild);
