@@ -56,19 +56,9 @@ public class RedissonManager {
         chatManagerBucket.set(chatManager);
     }
 
-    public static String dumpRedis(){
-        RBucket<ChatManager> chatManagerBucket = redissonClient.getBucket("chatmanager");
-        if(chatManagerBucket.isExists()){
-            ChatManager chatManager = chatManagerBucket.get();
-            for(String discussionKey : chatManager.getDiscussionsKey()){
-                RBucket<Discussion> discussionBucket = redissonClient.getBucket(discussionKey);
-                Discussion discussion = discussionBucket.get();
-                // TODO messages
-                discussionBucket.delete();
-            }
-            chatManagerBucket.delete();
-        }
-        return "Redis dump !";
+    public static String flushRedis(){
+        redissonClient.getKeys().flushall();
+        return "Redis flushed !";
     }
 
 }

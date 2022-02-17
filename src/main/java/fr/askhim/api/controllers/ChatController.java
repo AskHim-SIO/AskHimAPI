@@ -116,9 +116,9 @@ public class ChatController {
         return "";
     }
 
-    @DeleteMapping("/dump-redis")
-    public String dumpRedis(){
-        return RedissonManager.dumpRedis();
+    @DeleteMapping("/flush-redis")
+    public String flushRedis(){
+        return RedissonManager.flushRedis();
     }
 
     private DiscussionModel convertToDiscussionModel(Discussion discussion){
