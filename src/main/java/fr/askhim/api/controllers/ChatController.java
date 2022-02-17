@@ -92,7 +92,23 @@ public class ChatController {
         RBucket<Message> messageBucket = RedissonManager.getRedissonClient().getBucket("message_" + newMessage.getUuid());
         messageBucket.set(newMessage);
         discussionBucket.set(discussion);
-        return null;
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "MESSAGE_SAVED", "Le message a été enregistré"));
+    }
+
+    @GetMapping("/get-discussions-from-user-by-token/{token}")
+    public List<DiscussionModel> getDiscussionsFromUserByToken(@PathVariable UUID token, HttpServletResponse response){
+        if(!tokenService.tokenExist(token)){
+            response.setStatus(HttpStatus.NOT_FOUND.value(), "UNKNOWN_TOKEN");
+            return null;
+        }
+        List<DiscussionModel> discussions = new ArrayList<>();
+        for(String discussionsKey : RedissonManager.getChatManager().getDiscussionsKey()){
+            RBucket<Discussion> discussionBucket = RedissonManager.getRedissonClient().getBucket(discussionsKey);
+            Discussion discussion = discussionBucket.get();
+            DiscussionModel discussionModel = convertToDiscussionModel(discussion);
+            discussions.add(discussionModel);
+        }
+        return discussions;
     }
 
     @GetMapping("/test")
@@ -113,7 +129,16 @@ public class ChatController {
         discussionModel.setService(serviceModel);
         List<MessageModel> messages = new ArrayList<>();
         for(UUID messageUuid : discussion.getMessages()){
-            RBucket<Message> messageBucket = RedissonManager.getRedissonClient()
+            RBucket<Message> messageBucket = RedissonManager.getRedissonClient().getBucket("message_" + messageUuid.toString());
+            Message message = messageBucket.get();
+            MessageModel messageModel = new MessageModel();
+            messageModel.setUuid(message.getUuid());
+            User author = userService.getUserById(message.getAuthorId());
+            UserModel authorModel = mapper.map(author, UserModel.class);
+            messageModel.setAuthor(authorModel);
+            messageModel.setPostDate(message.getPostDate());
+            messageModel.setMessage(message.getMessage());
+            messages.add(messageModel);
         }
         discussionModel.setMessages(messages);
         List<UserModel> users = new ArrayList<>();
