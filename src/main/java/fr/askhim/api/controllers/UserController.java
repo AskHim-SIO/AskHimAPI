@@ -100,6 +100,13 @@ public class UserController {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         user.setPassword(passwordEncoder.encode(registerModel.getPassword()));
         user.setDateNaiss(registerModel.getDateNaiss());
+
+        if(registerModel.getTel() != null)
+            user.setTel(registerModel.getTel());
+
+        if(registerModel.getAddress() != null)
+            user.setAddress(registerModel.getAddress());
+
         user.setCredit(10L);
         user.setProfilPicture("http://cdn.askhim.ctrempe.fr/defaultUser.png");
 

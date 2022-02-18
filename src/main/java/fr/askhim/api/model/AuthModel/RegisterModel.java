@@ -14,4 +14,6 @@ public class RegisterModel {
     private String email;
     private String password;
     private Date dateNaiss;
+    private Long tel;
+    private String address;
 }
