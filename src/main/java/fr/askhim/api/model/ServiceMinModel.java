@@ -20,6 +20,7 @@ public class ServiceMinModel {
     private String description;
     private Date dateStart;
     private Date dateEnd;
+    private boolean state;
     private Integer price;
     private Date postDate;
     private Lieu lieu;

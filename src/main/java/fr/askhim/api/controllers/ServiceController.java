@@ -59,6 +59,9 @@ public class ServiceController {
     @Autowired
     private TypeRepository typeRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private final CourseService courseService;
     private final FormationService formationService;
     private final LieuService lieuService;
@@ -229,6 +232,27 @@ public class ServiceController {
             servicesModel.add(serviceMinMapToDTO(service));
         }
         return servicesModel;
+    }
+
+    @PutMapping("validate-service")
+    public ResponseEntity validateService(@RequestParam long serviceId, @RequestParam long userId){
+        if(!serviceService.serviceExist(serviceId)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le service spécifié n'existe pas"));
+        }
+        if(!userService.userExistById(userId)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_USER", "L'tilisateur spécifié n'existe pas"));
+        }
+        Service service = serviceService.getServiceById(serviceId);
+        User user = userService.getUserById(userId);
+        service.setState(false);
+        long servicePrice = service.getPrice();
+        User authorService = service.getUser();
+        serviceRepository.save(service);
+        authorService.setCredit(authorService.getCredit() - servicePrice);
+        userRepository.save(authorService);
+        user.setCredit(user.getCredit() + servicePrice);
+        userRepository.save(user);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, "SERVICE_VALIDATE", "Service validé avec succès, la transaction a été effectuée."));
     }
 
 
