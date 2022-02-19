@@ -87,6 +87,9 @@ public class ChatController {
         RBucket<Discussion> discussionBucket = RedissonManager.getRedissonClient().getBucket("discussion_" + discussionId.toString());
         Discussion discussion = discussionBucket.get();
         User user = tokenService.getUserByToken(userToken);
+        if(!discussion.getUsersId().contains(user.getId())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse(false, "INSUFFICIENT_PERMISSIONS", "Cet utilisateur n'est pas autorisé à envoyer des messages dans cette discussion."));
+        }
         Message newMessage = new Message(user.getId(), discussion.getUuid(), message);
         discussion.getMessages().add(newMessage.getUuid());
         RBucket<Message> messageBucket = RedissonManager.getRedissonClient().getBucket("message_" + newMessage.getUuid());
@@ -101,12 +104,15 @@ public class ChatController {
             response.setStatus(HttpStatus.NOT_FOUND.value(), "UNKNOWN_TOKEN");
             return null;
         }
+        User user = tokenService.getUserByToken(token);
         List<DiscussionModel> discussions = new ArrayList<>();
         for(String discussionsKey : RedissonManager.getChatManager().getDiscussionsKey()){
             RBucket<Discussion> discussionBucket = RedissonManager.getRedissonClient().getBucket(discussionsKey);
             Discussion discussion = discussionBucket.get();
-            DiscussionModel discussionModel = convertToDiscussionModel(discussion);
-            discussions.add(discussionModel);
+            if(discussion.getUsersId().contains(user.getId())){
+                DiscussionModel discussionModel = convertToDiscussionModel(discussion);
+                discussions.add(discussionModel);
+            }
         }
         return discussions;
     }
