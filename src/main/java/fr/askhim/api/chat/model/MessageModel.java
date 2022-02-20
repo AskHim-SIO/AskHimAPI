@@ -15,5 +15,6 @@ public class MessageModel {
     private UserModel author;
     private Date postDate;
     private String message;
+    private boolean unreaded;
 
 }

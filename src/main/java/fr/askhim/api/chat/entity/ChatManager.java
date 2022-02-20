@@ -1,6 +1,8 @@
 package fr.askhim.api.chat.entity;
 
 import fr.askhim.api.chat.RedissonManager;
+import fr.askhim.api.chat.model.DiscussionModel;
+import fr.askhim.api.entity.User;
 import org.redisson.api.RBucket;
 
 import java.util.*;
@@ -40,6 +42,18 @@ public class ChatManager {
 
     public boolean discussionExist(UUID uuid){
         return discussionsKey.contains("discussion_" + uuid.toString());
+    }
+
+    public List<Discussion> getDiscussionsFromUser(User user){
+        List<Discussion> discussions = new ArrayList<>();
+        for(String discussionsKey : RedissonManager.getChatManager().getDiscussionsKey()){
+            RBucket<Discussion> discussionBucket = RedissonManager.getRedissonClient().getBucket(discussionsKey);
+            Discussion discussion = discussionBucket.get();
+            if(discussion.getUsersId().contains(user.getId())){
+                discussions.add(discussion);
+            }
+        }
+        return discussions;
     }
 
 }

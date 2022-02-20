@@ -15,6 +15,7 @@ public class Message {
     private Date postDate;
     private UUID discussion;
     private String message;
+    private boolean unreaded;
 
     public Message(long authorId, UUID discussion, String message){
         this.uuid = UUID.randomUUID();
@@ -22,6 +23,7 @@ public class Message {
         this.postDate = new Date();
         this.discussion = discussion;
         this.message = message;
+        this.unreaded = true;
     }
 
     public Message(){

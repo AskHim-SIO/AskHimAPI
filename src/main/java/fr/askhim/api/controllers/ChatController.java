@@ -106,13 +106,9 @@ public class ChatController {
         }
         User user = tokenService.getUserByToken(token);
         List<DiscussionModel> discussions = new ArrayList<>();
-        for(String discussionsKey : RedissonManager.getChatManager().getDiscussionsKey()){
-            RBucket<Discussion> discussionBucket = RedissonManager.getRedissonClient().getBucket(discussionsKey);
-            Discussion discussion = discussionBucket.get();
-            if(discussion.getUsersId().contains(user.getId())){
-                DiscussionModel discussionModel = convertToDiscussionModel(discussion);
-                discussions.add(discussionModel);
-            }
+        for(Discussion discussion : RedissonManager.getChatManager().getDiscussionsFromUser(user)){
+            DiscussionModel discussionModel = convertToDiscussionModel(discussion);
+            discussions.add(discussionModel);
         }
         return discussions;
     }
@@ -125,6 +121,73 @@ public class ChatController {
     @DeleteMapping("/flush-redis")
     public String flushRedis(){
         return RedissonManager.flushRedis();
+    }
+
+    @GetMapping("/check-new-messages-from-discussion")
+    public ResponseEntity checkNewMessagesFromDiscussion(@RequestParam UUID discussionId, @RequestParam UUID userToken){
+        if(!tokenService.tokenExist(userToken)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
+        }
+        ChatManager chatManager = RedissonManager.getChatManager();
+        if(!chatManager.discussionExist(discussionId)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_DISCUSSION", "La discussion spécifiée n'existe pas"));
+        }
+        User user = tokenService.getUserByToken(userToken);
+        RBucket<Discussion> discussionBucket = RedissonManager.getRedissonClient().getBucket("discussion_" + discussionId.toString());
+        Discussion discussion = discussionBucket.get();
+        int unreadedMessages = 0;
+        for(UUID messageId : discussion.getMessages()) {
+            RBucket<Message> messageBucket = RedissonManager.getRedissonClient().getBucket("message_" + messageId.toString());
+            Message message = messageBucket.get();
+            if (message.getAuthorId() != user.getId() && message.isUnreaded()) {
+                unreadedMessages++;
+            }
+        }
+        ApiResponse response = (unreadedMessages == 0 ? new ApiResponse(false, "MESSAGES_READED", "Tous les messages ont été lus") : new ApiResponse(true, "MESSAGES_UNREADED", unreadedMessages + " messages non lus"));
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+    }
+
+    @GetMapping("/check-new-messages-global")
+    public ResponseEntity checkNewMessagesGlobal(@RequestParam UUID userToken){
+        if(!tokenService.tokenExist(userToken)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
+        }
+        User user = tokenService.getUserByToken(userToken);
+        List<Discussion> discussions = RedissonManager.getChatManager().getDiscussionsFromUser(user);
+        int unreadedMessages = 0;
+        for(Discussion discussion : discussions){
+            for(UUID messageId : discussion.getMessages()){
+                RBucket<Message> messageBucket = RedissonManager.getRedissonClient().getBucket("message_" + messageId.toString());
+                Message message = messageBucket.get();
+                if (message.getAuthorId() != user.getId() && message.isUnreaded()) {
+                    unreadedMessages++;
+                }
+            }
+        }
+        ApiResponse response = (unreadedMessages == 0 ? new ApiResponse(false, "MESSAGES_READED", "Tous les messages ont été lus") : new ApiResponse(true, "MESSAGES_UNREADED", unreadedMessages + " messages non lus"));
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+    }
+
+    @PutMapping("/read-messages")
+    public ResponseEntity readMessages(@RequestParam UUID discussionId, @RequestParam UUID userToken){
+        if(!tokenService.tokenExist(userToken)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
+        }
+        if(!RedissonManager.getChatManager().discussionExist(discussionId)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_DISCUSSION", "La discussion n'a pas été trouvée"));
+        }
+        User user = tokenService.getUserByToken(userToken);
+        RBucket<Discussion> discussionBucket = RedissonManager.getRedissonClient().getBucket("discussion_" + discussionId.toString());
+        Discussion discussion = discussionBucket.get();
+        for(UUID messageId : discussion.getMessages()){
+            RBucket<Message> messageBucket = RedissonManager.getRedissonClient().getBucket("message_" + messageId.toString());
+            Message message = messageBucket.get();
+            if (message.getAuthorId() != user.getId() && message.isUnreaded()) {
+                message.setUnreaded(false);
+                messageBucket.set(message);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, "MESSAGE_READED", "Les messages ont été marqués comme lu avec succès"));
     }
 
     private DiscussionModel convertToDiscussionModel(Discussion discussion){
@@ -144,6 +207,7 @@ public class ChatController {
             messageModel.setAuthor(authorModel);
             messageModel.setPostDate(message.getPostDate());
             messageModel.setMessage(message.getMessage());
+            messageModel.setUnreaded(message.isUnreaded());
             messages.add(messageModel);
         }
         discussionModel.setMessages(messages);
