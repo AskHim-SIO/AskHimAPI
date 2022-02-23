@@ -172,6 +172,7 @@ public class ServiceController {
                 servicesMinModel.add(serviceMinMapToDTO(service));
             }
         }
+        Collections.reverse(servicesMinModel);
         return servicesMinModel;
     }
 
@@ -188,6 +189,7 @@ public class ServiceController {
                 servicesModel.add(serviceMinMapToDTO(service));
             }
         }
+        Collections.reverse(servicesModel);
         return servicesModel;
     }
 
@@ -206,7 +208,7 @@ public class ServiceController {
                     servicesMinModel.add(serviceMinMapToDTO(service));
                 }
             }
-
+            Collections.reverse(servicesMinModel);
             return servicesMinModel;
     }
 
