@@ -123,6 +123,22 @@ public class ChatController {
         return RedissonManager.flushRedis();
     }
 
+    @GetMapping("/get-nb-discussions")
+    public int getNbDiscussions(){
+        return RedissonManager.getChatManager().getDiscussionsKey().size();
+    }
+
+    @GetMapping("/get-nb-messages")
+    public int getNbMessages(){
+        int nbMessages = 0;
+        for(String discussionKey : RedissonManager.getChatManager().getDiscussionsKey()){
+            RBucket<Discussion> discussionBucket = RedissonManager.getRedissonClient().getBucket(discussionKey);
+            Discussion discussion = discussionBucket.get();
+            nbMessages += discussion.getMessages().size();
+        }
+        return nbMessages;
+    }
+
     @GetMapping("/check-new-messages-from-discussion")
     public ResponseEntity checkNewMessagesFromDiscussion(@RequestParam UUID discussionId, @RequestParam UUID userToken){
         if(!tokenService.tokenExist(userToken)) {
