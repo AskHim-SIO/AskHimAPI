@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 public class ControllerIndex {
 
-    @RequestMapping("/")
+    /*@RequestMapping("/")
     public ModelAndView index(ModelMap model){
         return new ModelAndView("redirect:/swagger-ui/", model);
-    }
+    }*/
 }
