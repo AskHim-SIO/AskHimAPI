@@ -1,5 +1,8 @@
 package fr.askhim.api.chat;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import fr.askhim.api.chat.entity.ChatManager;
 import fr.askhim.api.chat.entity.Discussion;
 import org.redisson.Redisson;
@@ -8,6 +11,8 @@ import org.redisson.api.RedissonClient;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
 import org.springframework.stereotype.Service;
+
+import java.io.InputStreamReader;
 
 @Service
 public class RedissonManager {
@@ -27,9 +32,15 @@ public class RedissonManager {
 
         config.setCodec(new JsonJacksonCodec());
 
+        Gson gson = new GsonBuilder().create();
+        JsonObject obj = gson.fromJson(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("config.json")), JsonObject.class);
+
+        String redisHost= obj.get("redis-host").getAsString();
+        String redisPassword= obj.get("redis-password").getAsString();
+
         config.useSingleServer()
-                .setAddress("askhim.ctrempe.fr:6379")
-                .setPassword("qMA747wc");
+                .setAddress(redisHost)
+                .setPassword(redisPassword);
 
         redissonClient = Redisson.create(config);
         System.out.println("[Redisson] Connexion à la base de données réussie !");
