@@ -108,7 +108,7 @@ public class UserController {
             user.setAddress(registerModel.getAddress());
 
         user.setCredit(10L);
-        user.setProfilPicture("http://cdn.askhim.ctrempe.fr/defaultUser.png");
+        user.setProfilPicture("https://cdn.askhim.ctrempe.fr/defaultUser.png");
 
 
         userRepository.save(user);
