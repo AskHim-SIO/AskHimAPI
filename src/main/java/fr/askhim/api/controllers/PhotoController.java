@@ -53,7 +53,7 @@ public class PhotoController {
 
     @PostMapping("/ajouter-photo-dans-cdn")
     public String ajouterPhotoDansCDN(HttpServletResponse response, @RequestParam(required = false) String photoName, @RequestPart(value = "file", required = true) MultipartFile file) throws IOException {
-        String pathOrigin = "/var/www/html/cdn/";
+        String pathOrigin = "/var/www/html/";
         String pathBuild = pathOrigin;
         String fileNameBuild = "";
         if(photoName == null){
@@ -69,7 +69,7 @@ public class PhotoController {
             }
         }
         file.transferTo(new File(pathBuild));
-        return "https://cdn.askhim.ctrempe.fr/" + fileNameBuild;
+        return "http://192.168.49.12/" + fileNameBuild;
     }
 
     /*
@@ -103,7 +103,7 @@ public class PhotoController {
         String extension = prefixBaseImage.replace("data:image/", "");
         extension = extension.replace(";base64", "");
         String base64Image = photoBody.getFileStr().split(",")[1];
-        String pathOrigin = "/var/www/html/cdn/";
+        String pathOrigin = "/var/www/html/";
         UUID uuid = UUID.randomUUID();
         String fileNameBuild = uuid + "." + extension;
         String pathBuild = pathOrigin + fileNameBuild;
@@ -113,7 +113,7 @@ public class PhotoController {
         imgOutFile.close();
         Service service = serviceService.getServiceById(serviceId);
         Photo photo = new Photo();
-        photo.setLibelle("https://cdn.askhim.ctrempe.fr/" + fileNameBuild);
+        photo.setLibelle("http://192.168.49.12/" + fileNameBuild);
         photo.setService(service);
         photoRepository.save(photo);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "PHOTO_SAVED", "La photo a été enregistrée avec succès !"));
@@ -126,14 +126,14 @@ public class PhotoController {
         }
         User user = tokenService.getUserByToken(token);
 
-        String pathOrigin = "/var/www/html/cdn/";
+        String pathOrigin = "/var/www/html/";
         String pathBuild = pathOrigin;
         String fileNameBuild = "";
         UUID uuid = UUID.randomUUID();
         fileNameBuild = uuid + "." + FilenameUtils.getExtension(file.getOriginalFilename());
         pathBuild += fileNameBuild;
         file.transferTo(new File(pathBuild));
-        user.setProfilPicture("https://cdn.askhim.ctrempe.fr/" + fileNameBuild);
+        user.setProfilPicture("http://192.168.49.12/" + fileNameBuild);
         userRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "PHOTO_SAVED", "La photo à été modifié avec succès !"));
     }
