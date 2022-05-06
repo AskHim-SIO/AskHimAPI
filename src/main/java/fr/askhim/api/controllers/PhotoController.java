@@ -69,7 +69,7 @@ public class PhotoController {
             }
         }
         file.transferTo(new File(pathBuild));
-        return "https://cdn.askhim.ctrempe.fr/" + fileNameBuild;
+        return "http://192.168.10.11/cdn/" + fileNameBuild;
     }
 
     /*
@@ -113,7 +113,7 @@ public class PhotoController {
         imgOutFile.close();
         Service service = serviceService.getServiceById(serviceId);
         Photo photo = new Photo();
-        photo.setLibelle("https://cdn.askhim.ctrempe.fr/" + fileNameBuild);
+        photo.setLibelle("http://192.168.50.11/cdn/" + fileNameBuild);
         photo.setService(service);
         photoRepository.save(photo);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "PHOTO_SAVED", "La photo a été enregistrée avec succès !"));
@@ -133,7 +133,7 @@ public class PhotoController {
         fileNameBuild = uuid + "." + FilenameUtils.getExtension(file.getOriginalFilename());
         pathBuild += fileNameBuild;
         file.transferTo(new File(pathBuild));
-        user.setProfilPicture("https://cdn.askhim.ctrempe.fr/" + fileNameBuild);
+        user.setProfilPicture("http://192.168.50.11/cdn/" + fileNameBuild);
         userRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "PHOTO_SAVED", "La photo à été modifié avec succès !"));
     }
