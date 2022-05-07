@@ -5,11 +5,11 @@ import java.util.Map;
 
 public enum TypeEnum {
 
-    TRANSPORT(1L, "Transport", "http://cdn.askhim.ctrempe.fr/transport.jpg", "http://cdn.askhim.ctrempe.fr/panneauMobile.png"),
-    COURSE(2L, "Course", "http://cdn.askhim.ctrempe.fr/course.jpg", "http://cdn.askhim.ctrempe.fr/sacMobile.png"),
-    FORMATION(3L, "Formation", "http://cdn.askhim.ctrempe.fr/formation.jpg", "http://cdn.askhim.ctrempe.fr/diplomeMobile.png"),
-    LOISIR(4L, "Loisir", "http://cdn.askhim.ctrempe.fr/loisir.jpg", "http://cdn.askhim.ctrempe.fr/loisirMobile.png"),
-    TACHE_MENAGERE(5L, "Tâche ménagère", "http://cdn.askhim.ctrempe.fr/tacheMenagere.jpg", "http://cdn.askhim.ctrempe.fr/tacheMenagereMobile.png");
+    TRANSPORT(1L, "Transport", "http://192.168.49.11/transport.jpg", "http://192.168.49.11/panneauMobile.png"),
+    COURSE(2L, "Course", "http://192.168.49.11/course.jpg", "http://192.168.49.11/sacMobile.png"),
+    FORMATION(3L, "Formation", "http://192.168.49.11/formation.jpg", "http://192.168.49.11/diplomeMobile.png"),
+    LOISIR(4L, "Loisir", "http://192.168.49.11/loisir.jpg", "http://192.168.49.11/loisirMobile.png"),
+    TACHE_MENAGERE(5L, "Tâche ménagère", "http://192.168.49.11/tacheMenagere.jpg", "http://192.168.49.11/tacheMenagereMobile.png");
 
     private Long id;
     private String libelle;
