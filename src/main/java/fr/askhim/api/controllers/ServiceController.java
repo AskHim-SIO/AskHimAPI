@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
+import static java.util.Collections.list;
 import static java.util.Collections.shuffle;
 
 @RestController
@@ -100,6 +101,57 @@ public class ServiceController {
         });
 
         shuffle(serviceModels);
+        return serviceModels;
+    }
+
+    @GetMapping ("/get-services-city-postalcode")
+    public List<Integer> getlistPostalCode() {
+        List<Service> services = serviceRepository.findAll();
+        List<Integer> listPostalCode = new ArrayList<>();
+
+        for(Service service : services){
+            boolean doublon = false;
+            for(Integer postalCode : listPostalCode){
+                if(postalCode == service.getLieu().getCodePostal()){
+                    doublon = true;
+                    break;
+                }
+            }
+
+            int cp = service.getLieu().getCodePostal();
+
+            if(!doublon){
+                String cpStr = "" + cp;
+                String cpSubtr = cpStr.substring(0, 5 - 3);
+                listPostalCode.add(Integer.parseInt(cpSubtr));
+            }
+        }
+
+        return listPostalCode;
+    }
+
+
+
+    @GetMapping("/get-all-services-by-countycode/{countyCode}")
+    public List<ServiceMinModel> getServiceByCountyCode(int countyCode){
+        List<Service> services = serviceService.getServiceByCountyCode(countyCode);
+        List<ServiceMinModel> serviceModels = new ArrayList<>();
+
+        for(Service service : services){
+            serviceModels.add(serviceMinMapToDTO(service));
+        }
+
+        return serviceModels;
+    }
+
+    @GetMapping("/get-all-services-sorted-by-price")
+    public List<ServiceMinModel> getServicesByPrice() {
+        List<Service> services = serviceRepository.findByOrderByPriceAsc();
+        List<ServiceMinModel> serviceModels = new ArrayList<>();
+
+        services.forEach(service -> {
+            serviceModels.add(serviceMinMapToDTO(service));
+        });
         return serviceModels;
     }
 

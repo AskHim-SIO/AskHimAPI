@@ -1,5 +1,6 @@
 package fr.askhim.api.services;
 
+import fr.askhim.api.entity.Lieu;
 import fr.askhim.api.entity.Service;
 import fr.askhim.api.entity.User;
 import fr.askhim.api.repository.ServiceRepository;
@@ -7,6 +8,7 @@ import fr.askhim.api.repository.TransportRepository;
 import fr.askhim.api.type.TypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,5 +48,17 @@ public class ServiceService {
         return TypeEnum.idToTypeEnum(service.getType().getId());
     }
 
+    public List<Service> getServiceByCountyCode (int countyCode){
+        List<Service> services = serviceRepository.findAll();
 
+        List<Service> truncateLieu = new ArrayList<>();
+
+        for(Service service : services){
+            String cpStr = "" + service.getLieu().getCodePostal();
+            String cpSubtr = cpStr.substring(0, 5 - 3);
+            if(cpSubtr.equals(countyCode + "")) truncateLieu.add(service);
+        }
+
+        return truncateLieu;
+    }
 }

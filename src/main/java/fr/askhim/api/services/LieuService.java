@@ -37,4 +37,6 @@ public class LieuService {
         Random random = new Random();
         return lieux.get(random.nextInt(lieux.size()));
     }
+
+
 }

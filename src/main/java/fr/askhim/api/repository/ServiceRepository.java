@@ -3,6 +3,7 @@ package fr.askhim.api.repository;
 import fr.askhim.api.entity.Service;
 import fr.askhim.api.entity.Type;
 import fr.askhim.api.entity.User;
+import fr.askhim.api.model.ServiceMinModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,8 @@ public interface ServiceRepository extends JpaRepository<Service, Long> {
     List<Service> findTop20ByOrderByPostDateDesc();
     List<Service> findByUser(User user);
     List<Service> findByNameContains(String name);
+    List<Service> findByOrderByPriceAsc();
+
+    List<Service> findByLieuCodePostal(int codePostal);
+
 }
