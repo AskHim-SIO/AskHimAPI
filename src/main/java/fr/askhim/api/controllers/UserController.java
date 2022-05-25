@@ -118,10 +118,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "USER_CREATED", "L'utilisateur a été crée."));
     }
 
-    @GetMapping("valid-mail")
-    public Boolean isValidMail(String mail)
+    @GetMapping("/valid-mail/{email}")
+    public Boolean isValidMail(@PathVariable String email)
     {
-        Matcher matcher = Pattern.compile("^[A-Z0-9._-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE).matcher(mail);
+        Matcher matcher = Pattern.compile("^[A-Z0-9._-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE).matcher(email);
         return matcher.find();
     }
 

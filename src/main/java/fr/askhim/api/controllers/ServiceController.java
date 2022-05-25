@@ -89,6 +89,16 @@ public class ServiceController {
         this.userService = userService;
     }
 
+    @GetMapping("/negative-askcoins")
+    public Object isNegativeAskCoins (Long askcoins){
+        if(askcoins>0){
+            return true;
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, "NEGATIVE_ASKCOINS", "Les askcoins ne peuvent pas être négatif"));
+        }
+    }
+
     @GetMapping("/get-services")
     public List<ServiceMinModel> getServices() {
         Page<Service> services = serviceRepository.findAll(Pageable.ofSize(100));
@@ -299,13 +309,27 @@ public class ServiceController {
         Service service = serviceService.getServiceById(serviceId);
         User user = userService.getUserById(userId);
         service.setState(false);
+
+        if(user.getCredit() < service.getPrice()){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse(false, "INSUFFICIENT_COINS","L'utilisateur n'a pas assez de coins"));
+        }
+
+        //user = author
+
         long servicePrice = service.getPrice();
+        System.out.println("Prix du service : " + service.getPrice());
+
         User authorService = service.getUser();
-        serviceRepository.save(service);
+        System.out.println("Coins du user author avant : " + authorService.getCredit());
+
         authorService.setCredit(authorService.getCredit() - servicePrice);
-        userRepository.save(authorService);
+        System.out.println("Coins du user author apres : " + authorService.getCredit());
+
         user.setCredit(user.getCredit() + servicePrice);
+
         userRepository.save(user);
+        userRepository.save(authorService);
+        serviceRepository.save(service);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, "SERVICE_VALIDATE", "Service validé avec succès, la transaction a été effectuée."));
     }
 
