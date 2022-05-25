@@ -20,6 +20,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/user")
@@ -114,6 +116,13 @@ public class UserController {
         userRepository.save(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "USER_CREATED", "L'utilisateur a été crée."));
+    }
+
+    @GetMapping("valid-mail")
+    public Boolean isValidMail(String mail)
+    {
+        Matcher matcher = Pattern.compile("^[A-Z0-9._-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE).matcher(mail);
+        return matcher.find();
     }
 
     /*@PutMapping("/update-user/{token}")

@@ -10,6 +10,8 @@ import java.util.Random;
 @Service
 public class LieuService {
 
+    // Bastien le bébé
+
     private final LieuRepository lieuRepository;
 
     public LieuService(LieuRepository lieuRepository){
