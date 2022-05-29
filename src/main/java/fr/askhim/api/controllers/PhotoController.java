@@ -120,19 +120,24 @@ public class PhotoController {
     }
 
     @PostMapping("/save-photo-to-user")
-    public ResponseEntity savePhotoToUser(@RequestParam(required = true) UUID token, @RequestPart(value = "file", required = true) MultipartFile file) throws IOException {
+    public ResponseEntity savePhotoToUser(@RequestParam(required = true) UUID token, @RequestBody RequestPhotoBody photoBody) throws IOException {
         if(!tokenService.tokenExist(token)){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le token spécifié n'existe pas"));
         }
         User user = tokenService.getUserByToken(token);
 
+        String prefixBaseImage = photoBody.getFileStr().split(",")[0];
+        String extension = prefixBaseImage.replace("data:image/", "");
+        extension = extension.replace(";base64", "");
+        String base64Image = photoBody.getFileStr().split(",")[0];
         String pathOrigin = "/var/www/html/";
-        String pathBuild = pathOrigin;
-        String fileNameBuild = "";
         UUID uuid = UUID.randomUUID();
-        fileNameBuild = uuid + "." + FilenameUtils.getExtension(file.getOriginalFilename());
-        pathBuild += fileNameBuild;
-        file.transferTo(new File(pathBuild));
+        String fileNameBuild = uuid + "." + extension;
+        String pathBuild = pathOrigin + fileNameBuild;
+        byte[] imgByteArray = Base64.decodeBase64(base64Image);
+        FileOutputStream imgOutFile = new FileOutputStream(pathBuild);
+        imgOutFile.write(imgByteArray);
+        imgOutFile.close();
         user.setProfilPicture("http://192.168.49.11/" + fileNameBuild);
         userRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "PHOTO_SAVED", "La photo à été modifié avec succès !"));
