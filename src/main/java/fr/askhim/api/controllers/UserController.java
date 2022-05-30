@@ -110,8 +110,8 @@ public class UserController {
        return mapToDTO(userService.getUserById(id));
     }
 
-    @PostMapping("/add-money/{token}")
-    public Object addMoney(@PathVariable UUID token, Long credit)
+    @PostMapping("/add-money")
+    public Object addMoney(@RequestParam UUID token, @RequestParam Long credit)
     {
         Optional<Token> tokenRes = tokenRepository.findById(token.toString());
         if (!tokenRes.isPresent()) {
