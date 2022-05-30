@@ -44,9 +44,14 @@ public class ServiceService {
         return getServiceById(id) != null;
     }
 
+    public List<Service> getServiceByLieuCodePostal (int postalCode){
+        return serviceRepository.findByLieuCodePostal(postalCode);
+    }
+
     public TypeEnum getType(Service service){
         return TypeEnum.idToTypeEnum(service.getType().getId());
     }
+
 
     public List<Service> getServiceByCountyCode (int countyCode){
         List<Service> services = serviceRepository.findAll();
