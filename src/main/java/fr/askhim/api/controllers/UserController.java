@@ -87,6 +87,21 @@ public class UserController {
        return mapToDTO(userService.getUserById(id));
     }
 
+    @PostMapping("/add-money/{token}")
+    public Object addMoney(@PathVariable UUID token, Long credit)
+    {
+        Optional<Token> tokenRes = tokenRepository.findById(token.toString());
+        if (!tokenRes.isPresent()) {
+            // 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
+        }
+        Token userTok = tokenRes.get();
+        User user = userTok.getUser();
+        user.setCredit(user.getCredit() + credit);
+        userRepository.save(user);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponse(true, "MONEY_ADDED", "L'utilisateur a été crédité."));
+    }
+
     @CrossOrigin(origins = "*")
     @PostMapping("/create-user")
     public ResponseEntity createUser(@RequestBody RegisterModel registerModel) {
