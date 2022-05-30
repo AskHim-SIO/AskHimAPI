@@ -19,6 +19,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,6 +81,25 @@ public class UserController {
             return mapToDTO(user);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, "UNKNOWN_TOKEN", "L'utilisateur spécifié n'existe plus"));
+    }
+
+    @GetMapping("/get-age-by-token/{token}")
+    public Object getAgeByToken(@PathVariable UUID token){
+        Optional<Token> tokenRes = tokenRepository.findById(token.toString());
+        if (!tokenRes.isPresent()) {
+            // 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
+        }
+
+        Token userTok = tokenRes.get();
+        User user = userTok.getUser();
+
+        LocalDate curDate = LocalDate.now();
+        LocalDate dateNaiss = Instant.ofEpochMilli(user.getDateNaiss().getTime())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        return Period.between(dateNaiss, curDate).getYears();
     }
 
     @GetMapping("/get-user-by-id/{id}")
