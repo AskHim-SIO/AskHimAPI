@@ -19,3 +19,16 @@ public class AskHimApiApplication {
 	}
 
 }
+//spring.datasource.url=jdbc:mysql://192.168.50.12:3306/askhim
+//		spring.datasource.username=mmorel
+//		spring.datasource.password=azerty
+
+
+//{
+//  "redis-host": "192.168.50.12:6379",
+//  "redis-password": "azerty"
+//}
+
+// sudo systemctl restart askhimapi
+// open consol screen -r AskHimAPI
+// close : ctrl + a + d
