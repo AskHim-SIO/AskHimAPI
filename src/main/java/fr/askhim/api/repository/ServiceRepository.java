@@ -15,4 +15,6 @@ public interface ServiceRepository extends JpaRepository<Service, Long> {
     List<Service> findTop20ByOrderByPostDateDesc();
     List<Service> findByUser(User user);
     List<Service> findByNameContains(String name);
+    List<Service> findByOrderByPriceAsc();
+    List<Service> findByLieuCodePostal(int codePostal);
 }

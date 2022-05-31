@@ -19,7 +19,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/user")
@@ -114,6 +120,47 @@ public class UserController {
         userRepository.save(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "USER_CREATED", "L'utilisateur a été crée."));
+    }
+
+    @GetMapping("valid-mail")
+    public Boolean isValidMail(String mail)
+    {
+        Matcher matcher = Pattern.compile("^[A-Z0-9._-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE).matcher(mail);
+        return matcher.find();
+    }
+
+    @PostMapping("/add-money")
+    public Object addMoney(@RequestParam UUID token, @RequestParam Long credit)
+    {
+        Optional<Token> tokenRes = tokenRepository.findById(token.toString());
+        if (!tokenRes.isPresent()) {
+            // 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
+        }
+        Token userTok = tokenRes.get();
+        User user = userTok.getUser();
+        user.setCredit(user.getCredit() + credit);
+        userRepository.save(user);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponse(true, "MONEY_ADDED", "L'utilisateur a été crédité."));
+    }
+
+    @GetMapping("/get-age-by-token/{token}")
+    public Object getAgeByToken(@PathVariable UUID token){
+        Optional<Token> tokenRes = tokenRepository.findById(token.toString());
+        if (!tokenRes.isPresent()) {
+            // 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
+        }
+
+        Token userTok = tokenRes.get();
+        User user = userTok.getUser();
+
+        LocalDate curDate = LocalDate.now();
+        LocalDate dateNaiss = Instant.ofEpochMilli(user.getDateNaiss().getTime())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        return Period.between(dateNaiss, curDate).getYears();
     }
 
     /*@PutMapping("/update-user/{token}")

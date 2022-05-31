@@ -30,5 +30,4 @@ public class Discussion {
     public List<UUID> getMessages(){
         return messages;
     }
-
 }
