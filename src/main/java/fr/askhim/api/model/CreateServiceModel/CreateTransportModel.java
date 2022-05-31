@@ -12,5 +12,6 @@ public class CreateTransportModel extends CreateServiceModel{
     private int nbPlaceDispo;
     private String vehiculePerso;
     private String motif;
+    private String energie;
 
 }

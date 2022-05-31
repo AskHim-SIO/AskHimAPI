@@ -1,6 +1,7 @@
 package fr.askhim.api.model;
 
 
+import fr.askhim.api.entity.Energie;
 import fr.askhim.api.entity.Lieu;
 import fr.askhim.api.entity.Type;
 import lombok.Getter;

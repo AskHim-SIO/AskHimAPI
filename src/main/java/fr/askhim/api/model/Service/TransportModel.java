@@ -14,4 +14,6 @@ public class TransportModel extends ServiceModel {
     private int nbPlaceDispo;
     private String vehiculePerso;
     private String motif;
+    private String energie;
+
 }

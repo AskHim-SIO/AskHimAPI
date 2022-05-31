@@ -236,6 +236,16 @@ public class ServiceController {
         return servicesModel;
     }
 
+    @GetMapping("/get-transport-service")
+    public List<TransportModel> getTransport(){
+        List<Transport> transports = transportRepository.findAll();
+        List<TransportModel> transportModels = new ArrayList<>();
+        for(Transport transport : transports){
+            transportModels.add(transport2MapToDTO(transport));
+        }
+        return transportModels;
+    }
+
     @PutMapping("validate-service")
     public ResponseEntity validateService(@RequestParam long serviceId, @RequestParam long userId){
         if(!serviceService.serviceExist(serviceId)){
@@ -287,6 +297,10 @@ public class ServiceController {
         newTransport.setNbPlaceDispo(transportModel.getNbPlaceDispo());
         newTransport.setVehiculePerso(transportModel.getVehiculePerso());
         newTransport.setMotif(transportModel.getMotif());
+        Energie energie = new Energie();
+
+        energie.setLibelle(transportModel.getEnergie());
+        newTransport.setEnergie(energie);
         newTransport.setService(serviceReg);
         transportRepository.save(newTransport);
         response.setStatus(HttpStatus.CREATED.value(), "SERVICE_CREATED");
@@ -514,6 +528,17 @@ public class ServiceController {
         return serviceModel;
     }
 
+    private TransportModel transport2MapToDTO(Transport transport) {
+        TransportModel serviceModel = new TransportModel();
+        serviceModel.setPointDepart(transport.getPointDepart());
+        serviceModel.setPointArriver(transport.getPointArriver());
+        serviceModel.setNbPlaceDispo(transport.getNbPlaceDispo());
+        serviceModel.setVehiculePerso(transport.getVehiculePerso());
+        serviceModel.setMotif(transport.getMotif());
+        serviceModel.setEnergie(transport.getEnergie().getLibelle());
+        return serviceModel;
+    }
+
     private ServiceModel serviceMapToDTO(Service service) {
         ServiceModel serviceModel = mapper.map(service, ServiceModel.class);
         return serviceModel;
@@ -530,6 +555,7 @@ public class ServiceController {
         serviceModel.setNbPlaceDispo(transport.getNbPlaceDispo());
         serviceModel.setVehiculePerso(transport.getVehiculePerso());
         serviceModel.setMotif(transport.getMotif());
+        serviceModel.setEnergie(transport.getEnergie().getLibelle());
         return serviceModel;
     }
 

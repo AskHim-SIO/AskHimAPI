@@ -1,6 +1,8 @@
 package fr.askhim.api.entity.services;
 
+import fr.askhim.api.entity.Energie;
 import fr.askhim.api.entity.Service;
+import fr.askhim.api.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,4 +36,8 @@ public class Transport {
     @OneToOne
     @JoinColumn(name="service_id", nullable=false)
     private Service service;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "energie_id", referencedColumnName = "id", nullable = true)
+    private Energie energie;
 }
