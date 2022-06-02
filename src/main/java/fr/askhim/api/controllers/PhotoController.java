@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,10 +30,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/photo")
 public class PhotoController {
+
+    Logger logger = Logger.getLogger(PhotoController.class.getPackage().getName());
 
     @Autowired
     private PhotoRepository photoRepository;
@@ -52,7 +56,8 @@ public class PhotoController {
     }
 
     @PostMapping("/ajouter-photo-dans-cdn")
-    public String ajouterPhotoDansCDN(HttpServletResponse response, @RequestParam(required = false) String photoName, @RequestPart(value = "file", required = true) MultipartFile file) throws IOException {
+    public String ajouterPhotoDansCDN(HttpServletRequest request, HttpServletResponse response, @RequestParam(required = false) String photoName, @RequestPart(value = "file", required = true) MultipartFile file) throws IOException {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         String pathOrigin = "/var/www/html/cdn/";
         String pathBuild = pathOrigin;
         String fileNameBuild = "";
@@ -95,7 +100,8 @@ public class PhotoController {
 
     // 5 codes d'erreurs réalisés avec cette route.
     @PostMapping(value = "/save-photo-to-service")
-    public ResponseEntity savePhotoToService(@RequestParam(required = true) long serviceId, @RequestBody RequestPhotoBody photoBody) throws IOException {
+    public ResponseEntity savePhotoToService(HttpServletRequest request, @RequestParam(required = true) long serviceId, @RequestBody RequestPhotoBody photoBody) throws IOException {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if(!serviceService.serviceExist(serviceId)){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le service spécifié n'existe pas"));
         }
@@ -120,7 +126,8 @@ public class PhotoController {
     }
 
     @PostMapping("/save-photo-to-user")
-    public ResponseEntity savePhotoToUser(@RequestParam(required = true) UUID token, @RequestPart(value = "file", required = true) MultipartFile file) throws IOException {
+    public ResponseEntity savePhotoToUser(HttpServletRequest request, @RequestParam(required = true) UUID token, @RequestPart(value = "file", required = true) MultipartFile file) throws IOException {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if(!tokenService.tokenExist(token)){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le token spécifié n'existe pas"));
         }

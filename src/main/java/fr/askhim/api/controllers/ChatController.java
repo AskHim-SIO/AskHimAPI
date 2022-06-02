@@ -21,14 +21,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/chat")
 public class ChatController {
+
+    Logger logger = Logger.getLogger(ChatController.class.getPackage().getName());
 
     private final ServiceService serviceService;
     private final TokenService tokenService;
@@ -43,7 +47,8 @@ public class ChatController {
     }
 
     @PostMapping("/init-discussion")
-    public String initDiscussion(HttpServletResponse response, @RequestParam Long serviceId, @RequestParam UUID userToken){
+    public String initDiscussion(HttpServletRequest request, HttpServletResponse response, @RequestParam Long serviceId, @RequestParam UUID userToken){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         ChatManager chatManager = RedissonManager.getChatManager();
         long userId = tokenService.getUserByToken(userToken).getId();
         if(chatManager.discussionExist(serviceId, userId)){
@@ -59,7 +64,8 @@ public class ChatController {
     }
 
     @GetMapping("/get-discussion-by-id/{discussionId}")
-    public DiscussionModel getDiscussionById(HttpServletResponse response, @PathVariable String discussionId){
+    public DiscussionModel getDiscussionById(HttpServletRequest request, HttpServletResponse response, @PathVariable String discussionId){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         UUID uuid = null;
         try {
             uuid = UUID.fromString(discussionId);
@@ -79,7 +85,8 @@ public class ChatController {
     }
 
     @PostMapping("/post-message")
-    public ResponseEntity postMessage(@RequestParam UUID discussionId, @RequestParam UUID userToken, @RequestParam String message){
+    public ResponseEntity postMessage(HttpServletRequest request, @RequestParam UUID discussionId, @RequestParam UUID userToken, @RequestParam String message){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         ChatManager chatManager = RedissonManager.getChatManager();
         if(!chatManager.discussionExist(discussionId)){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_DISCUSSION", "La discussion n'a pas été trouvée"));
@@ -99,7 +106,8 @@ public class ChatController {
     }
 
     @GetMapping("/get-discussions-from-user-by-token/{token}")
-    public List<DiscussionModel> getDiscussionsFromUserByToken(@PathVariable UUID token, HttpServletResponse response){
+    public List<DiscussionModel> getDiscussionsFromUserByToken(HttpServletRequest request, @PathVariable UUID token, HttpServletResponse response){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if(!tokenService.tokenExist(token)){
             response.setStatus(HttpStatus.NOT_FOUND.value(), "UNKNOWN_TOKEN");
             return null;
@@ -113,23 +121,21 @@ public class ChatController {
         return discussions;
     }
 
-    @GetMapping("/test")
-    public String test(){
-        return "";
-    }
-
     @DeleteMapping("/flush-redis")
-    public String flushRedis(){
+    public String flushRedis(HttpServletRequest request){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         return RedissonManager.flushRedis();
     }
 
     @GetMapping("/get-nb-discussions")
-    public int getNbDiscussions(){
+    public int getNbDiscussions(HttpServletRequest request){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         return RedissonManager.getChatManager().getDiscussionsKey().size();
     }
 
     @GetMapping("/get-nb-messages")
-    public int getNbMessages(){
+    public int getNbMessages(HttpServletRequest request){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         int nbMessages = 0;
         for(String discussionKey : RedissonManager.getChatManager().getDiscussionsKey()){
             RBucket<Discussion> discussionBucket = RedissonManager.getRedissonClient().getBucket(discussionKey);
@@ -140,7 +146,8 @@ public class ChatController {
     }
 
     @GetMapping("/check-new-messages-from-discussion")
-    public ResponseEntity checkNewMessagesFromDiscussion(@RequestParam UUID discussionId, @RequestParam UUID userToken){
+    public ResponseEntity checkNewMessagesFromDiscussion(HttpServletRequest request, @RequestParam UUID discussionId, @RequestParam UUID userToken){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if(!tokenService.tokenExist(userToken)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
         }
@@ -164,7 +171,8 @@ public class ChatController {
     }
 
     @GetMapping("/check-new-messages-global")
-    public ResponseEntity checkNewMessagesGlobal(@RequestParam UUID userToken){
+    public ResponseEntity checkNewMessagesGlobal(HttpServletRequest request, @RequestParam UUID userToken){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if(!tokenService.tokenExist(userToken)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
         }
@@ -185,7 +193,8 @@ public class ChatController {
     }
 
     @PutMapping("/read-messages")
-    public ResponseEntity readMessages(@RequestParam UUID discussionId, @RequestParam UUID userToken){
+    public ResponseEntity readMessages(HttpServletRequest request, @RequestParam UUID discussionId, @RequestParam UUID userToken){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if(!tokenService.tokenExist(userToken)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
         }

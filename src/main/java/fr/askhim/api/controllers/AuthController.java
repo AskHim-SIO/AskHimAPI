@@ -13,14 +13,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
+    Logger logger = Logger.getLogger(AuthController.class.getPackage().getName());
 
     @Autowired
     private TokenRepository tokenRepository;
@@ -35,7 +39,8 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public String loginUser(HttpServletResponse response, @RequestBody LoginModel request) {
+    public String loginUser(HttpServletRequest requestHttp, HttpServletResponse response, @RequestBody LoginModel request) {
+        logger.info("[" + requestHttp.getRemoteHost() + "] " + requestHttp.getRequestURL());
         boolean checkPass = true;
         if(!userService.userExistByEmail(request.getEmail())){
             checkPass = false;
@@ -76,7 +81,8 @@ public class AuthController {
 
 
     @GetMapping("token-valid")
-    public ResponseEntity tokenValid(@RequestParam String request) {
+    public ResponseEntity tokenValid(HttpServletRequest requestHttp, @RequestParam String request) {
+        logger.info("[" + requestHttp.getRemoteHost() + "] " + requestHttp.getRequestURL());
         if (request == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, "MISSING_PARAMETER", "Des arguments de la requête sont manquants"));
         }

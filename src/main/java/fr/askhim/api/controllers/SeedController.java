@@ -16,13 +16,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/seed")
 public class SeedController {
+
+    Logger logger = Logger.getLogger(SeedController.class.getPackage().getName());
 
     @Autowired
     private CourseRepository courseRepository;
@@ -83,7 +87,8 @@ public class SeedController {
     }
 
     @GetMapping("/seedcourses")
-    public String seedCourses(int nbSeed) {
+    public String seedCourses(HttpServletRequest request, int nbSeed) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if (checkNbSeeds(nbSeed)) {
             for (int i = 0; i < nbSeed; i++) {
                 Service newServiceEntity = buildServiceSeeded(TypeEnum.COURSE);
@@ -101,7 +106,8 @@ public class SeedController {
     }
 
     @GetMapping("/seedformations")
-    public String seedFormations(int nbSeed){
+    public String seedFormations(HttpServletRequest request, int nbSeed){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if (checkNbSeeds(nbSeed)){
             for (int i = 0; i < nbSeed; i++){
                 Service newServiceEntity = buildServiceSeeded(TypeEnum.FORMATION);
@@ -120,7 +126,8 @@ public class SeedController {
     }
 
     @GetMapping("/seedlieux")
-    public String seedLieux(int nbSeed) {
+    public String seedLieux(HttpServletRequest request, int nbSeed) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if (checkNbSeeds(nbSeed)) {
             for (int i = 0; i < nbSeed; i++) {
                 Lieu lieuFaker = new Lieu();
@@ -138,7 +145,8 @@ public class SeedController {
     }
 
     @GetMapping("/seedloisirs")
-    public String seedLoisirs(int nbSeed){
+    public String seedLoisirs(HttpServletRequest request, int nbSeed){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if (checkNbSeeds(nbSeed)){
             for (int i = 0; i < nbSeed; i++){
                 Service newServiceEntity = buildServiceSeeded(TypeEnum.LOISIR);
@@ -158,7 +166,8 @@ public class SeedController {
     }
 
     @GetMapping("/seedtachesmenagere")
-    public String seedtachesMenagere(int nbSeed){
+    public String seedtachesMenagere(HttpServletRequest request, int nbSeed){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if (checkNbSeeds(nbSeed)){
             for (int i = 0; i < nbSeed; i++){
                 Service newServiceEntity = buildServiceSeeded(TypeEnum.TACHE_MENAGERE);
@@ -176,7 +185,8 @@ public class SeedController {
     }
 
     @GetMapping("/seedtransports")
-    public String seedTransports(int nbSeed) {
+    public String seedTransports(HttpServletRequest request, int nbSeed) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if (checkNbSeeds(nbSeed)) {
             for (int i = 0; i < nbSeed; i++) {
                 Service newServiceEntity = buildServiceSeeded(TypeEnum.TRANSPORT);
@@ -196,7 +206,8 @@ public class SeedController {
     }
 
     @GetMapping("/seedusers")
-    public String seedUsers(int nbSeed) {
+    public String seedUsers(HttpServletRequest request, int nbSeed) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if (checkNbSeeds(nbSeed)) {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             for (int i = 0; i < nbSeed; i++) {
@@ -216,11 +227,6 @@ public class SeedController {
         } else {
             return "[Error] Le nombre doit être supérieur à 0";
         }
-    }
-
-    @GetMapping("/test")
-    public String test() {
-        return faker.address().zipCode();
     }
 
     private Service buildServiceSeeded(TypeEnum typeEnum){

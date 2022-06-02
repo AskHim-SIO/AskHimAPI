@@ -8,11 +8,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/type")
 public class TypeController {
+
+    Logger logger = Logger.getLogger(TypeController.class.getPackage().getName());
 
     @Autowired
     private TypeRepository typeRepository;
@@ -24,7 +28,8 @@ public class TypeController {
     }
 
     @GetMapping("/get-types")
-    public List<Type> getTypes(){
+    public List<Type> getTypes(HttpServletRequest request){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         return typeService.getAllTypes();
     }
 }

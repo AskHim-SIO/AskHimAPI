@@ -26,14 +26,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.logging.Logger;
 
 import static java.util.Collections.shuffle;
 
 @RestController
 @RequestMapping("/service")
 public class ServiceController {
+
+    Logger logger = Logger.getLogger(ServiceController.class.getPackage().getName());
 
     @Autowired
     private CourseRepository courseRepository;
@@ -89,7 +93,8 @@ public class ServiceController {
     }
 
     @GetMapping("/get-services")
-    public List<ServiceMinModel> getServices() {
+    public List<ServiceMinModel> getServices(HttpServletRequest request) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         Page<Service> services = serviceRepository.findAll(Pageable.ofSize(100));
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
@@ -104,7 +109,8 @@ public class ServiceController {
     }
 
     @GetMapping("/get-all-services")
-    public List<ServiceMinModel> getAllServices() {
+    public List<ServiceMinModel> getAllServices(HttpServletRequest request) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         List<Service> services = serviceRepository.findAll();
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
@@ -117,15 +123,17 @@ public class ServiceController {
     }
 
     @GetMapping("/nb-services")
-    public int   NbServices() {
+    public int NbServices(HttpServletRequest request) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         List<Service> services = serviceRepository.findAll();
-        int   cpt = (int) services.stream().filter(service -> service.getDeleteDate() == null).count();
+        int cpt = (int) services.stream().filter(service -> service.getDeleteDate() == null).count();
         return cpt;
     }
 
 
     @GetMapping("/get-service/{id}")
-    public Object getService(@PathVariable Long id){
+    public Object getService(HttpServletRequest request, @PathVariable Long id){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if(!serviceService.serviceExist(id)){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le service spécifié n'existe pas"));
         }
@@ -159,7 +167,8 @@ public class ServiceController {
     }
 
     @GetMapping("/get-services-from-user-by-token/{token}")
-    public Object getServicesFromUserByToken(@PathVariable UUID token){
+    public Object getServicesFromUserByToken(HttpServletRequest request, @PathVariable UUID token){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if(!tokenService.tokenExist(token)){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
         }
@@ -177,7 +186,8 @@ public class ServiceController {
     }
 
     @GetMapping("/get-services-from-user-by-id/{id}")
-    public Object getServicesFromUserById(@PathVariable Long id){
+    public Object getServicesFromUserById(HttpServletRequest request, @PathVariable Long id){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if(!userService.userExistById(id)){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_USER", "L'utilisateur spécifié n'existe pas"));
         }
@@ -194,7 +204,8 @@ public class ServiceController {
     }
 
     @GetMapping("/get-services-from-type/{typeId}")
-    public Object getServicesFromType(@PathVariable Long typeId){
+    public Object getServicesFromType(HttpServletRequest request, @PathVariable Long typeId){
+            logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
             Optional<Type> type = typeRepository.findById(typeId);
             if(!type.isPresent()){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TYPE", "Le type spécifié est introuvable"));
@@ -213,7 +224,8 @@ public class ServiceController {
     }
 
     @GetMapping("/get-recent-services")
-    public List<ServiceMinModel> getRecentServices() {
+    public List<ServiceMinModel> getRecentServices(HttpServletRequest request) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         List<Service> serviceEntities = serviceRepository.findTop20ByOrderByPostDateDesc();
         List<ServiceMinModel> serviceModels = new ArrayList<>();
 
@@ -227,7 +239,8 @@ public class ServiceController {
     }
 
     @GetMapping("/search-services")
-    public List<ServiceMinModel> searchServices(@RequestParam String query, @RequestParam(required = false) int count){
+    public List<ServiceMinModel> searchServices(HttpServletRequest request, @RequestParam String query, @RequestParam(required = false) int count){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         List<Service> services = serviceRepository.findByNameContains(query);
         List<ServiceMinModel> servicesModel = new ArrayList<>();
         for(Service service : services){
@@ -237,7 +250,8 @@ public class ServiceController {
     }
 
     @PutMapping("validate-service")
-    public ResponseEntity validateService(@RequestParam long serviceId, @RequestParam long userId){
+    public ResponseEntity validateService(HttpServletRequest request, @RequestParam long serviceId, @RequestParam long userId){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if(!serviceService.serviceExist(serviceId)){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_SERVICE", "Le service spécifié n'existe pas"));
         }
@@ -259,7 +273,8 @@ public class ServiceController {
 
 
     @PostMapping("/create-transport-service")
-    public String createTransportService(HttpServletResponse response, @RequestBody CreateTransportModel transportModel){
+    public String createTransportService(HttpServletRequest request, HttpServletResponse response, @RequestBody CreateTransportModel transportModel){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         Service newService = new Service();
         newService.setName(transportModel.getName());
         newService.setDescription(transportModel.getDescription());
@@ -294,7 +309,8 @@ public class ServiceController {
     }
 
     @PostMapping("/create-course-service")
-    public String createCourseService(HttpServletResponse response, @RequestBody CreateCourseModel courseModel){
+    public String createCourseService(HttpServletRequest request, HttpServletResponse response, @RequestBody CreateCourseModel courseModel){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         Service newService = new Service();
         newService.setName(courseModel.getName());
         newService.setDescription(courseModel.getDescription());
@@ -327,7 +343,8 @@ public class ServiceController {
     }
 
     @PostMapping("/create-formation-service")
-    public String createFormationService(HttpServletResponse response, @RequestBody CreateFormationModel formationModel){
+    public String createFormationService(HttpServletRequest request, HttpServletResponse response, @RequestBody CreateFormationModel formationModel){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         Service newService = new Service();
         newService.setName(formationModel.getName());
         newService.setDescription(formationModel.getDescription());
@@ -361,7 +378,8 @@ public class ServiceController {
     }
 
     @PostMapping("create-loisir-service")
-    public String createLoisirService(HttpServletResponse response, @RequestBody CreateLoisirModel loisirModel){
+    public String createLoisirService(HttpServletRequest request, HttpServletResponse response, @RequestBody CreateLoisirModel loisirModel){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         Service newService = new Service();
         newService.setName(loisirModel.getName());
         newService.setDescription(loisirModel.getDescription());
@@ -394,7 +412,8 @@ public class ServiceController {
     }
 
     @PostMapping("/create-tachemenagere-service")
-    public String createTacheMenagereService(HttpServletResponse response, @RequestBody CreateTacheMenagereModel tacheMenagereModel){
+    public String createTacheMenagereService(HttpServletRequest request, HttpServletResponse response, @RequestBody CreateTacheMenagereModel tacheMenagereModel){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         Service newService = new Service();
         newService.setName(tacheMenagereModel.getName());
         newService.setDescription(tacheMenagereModel.getDescription());

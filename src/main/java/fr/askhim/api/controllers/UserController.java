@@ -18,12 +18,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.*;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
+
+    Logger logger = Logger.getLogger(UserController.class.getPackage().getName());
 
     @Autowired
     private UserRepository userRepository;
@@ -45,7 +49,8 @@ public class UserController {
 
 
     @GetMapping("/get-all-users")
-    public List<UserModel> getAllUsers() {
+    public List<UserModel> getAllUsers(HttpServletRequest request) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         List<User> users = userRepository.findAll();
         List<UserModel> usersModel = new ArrayList<>();
 
@@ -57,12 +62,14 @@ public class UserController {
     }
 
     @GetMapping("/get-nb-users-activated")
-    public int getNbUsersActivated() {
+    public int getNbUsersActivated(HttpServletRequest request) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         return userService.getNbUserActivated();
     }
 
     @GetMapping("/get-user-by-token/{token}")
-    public Object getUserByToken(@PathVariable UUID token) {
+    public Object getUserByToken(HttpServletRequest request, @PathVariable UUID token) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         Optional<Token> tokenRes = tokenRepository.findById(token.toString());
         if (!tokenRes.isPresent()) {
             // 404
@@ -78,7 +85,8 @@ public class UserController {
     }
 
     @GetMapping("/get-user-by-id/{id}")
-    public Object getUserById(@PathVariable Long id) {
+    public Object getUserById(HttpServletRequest request, @PathVariable Long id) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
        if(!userService.userExistById(id)){
            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_USER", "Cet utilisateur n'existe pas"));
        }
@@ -87,8 +95,8 @@ public class UserController {
 
     @CrossOrigin(origins = "*")
     @PostMapping("/create-user")
-    public ResponseEntity createUser(@RequestBody RegisterModel registerModel) {
-
+    public ResponseEntity createUser(HttpServletRequest request, @RequestBody RegisterModel registerModel) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if (userService.userExistByEmail(registerModel.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(false, "USER_ALREADY_EXIST", "Un compte est déjà créé avec cette adresse email."));
         }
@@ -142,7 +150,8 @@ public class UserController {
     }*/
 
     @PutMapping("/update-user/{token}")
-    public Object updateUser(@PathVariable UUID token, @RequestBody UserModel userModel){
+    public Object updateUser(HttpServletRequest request, @PathVariable UUID token, @RequestBody UserModel userModel){
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         if(!tokenService.tokenExist(token)){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, "UNKNOWN_TOKEN", "Le token spécifié n'existe pas"));
         }
@@ -153,7 +162,8 @@ public class UserController {
     }
 
     @DeleteMapping("/delete-user/{id}")
-    public ResponseEntity deleteUser(@PathVariable Long id) {
+    public ResponseEntity deleteUser(HttpServletRequest request, @PathVariable Long id) {
+        logger.info("[" + request.getRemoteHost() + "] " + request.getRequestURL());
         Optional<User> userResearch = userRepository.findById(id);
         if (!userResearch.isPresent()) {
             // 404
